@@ -8,7 +8,16 @@ const sql = postgres(<string>process.env.DB_URL,
   });
 
 async function getData() {
-  const data = await sql`SELECT year, month, average AS ppm FROM global_co2 ORDER BY year DESC, month DESC LIMIT 1000;`
+  const data = await sql`
+    SELECT 
+      year::int AS year,
+      month::int AS month,
+      average AS ppm 
+    FROM global_co2 
+    ORDER BY 
+      year ASC, 
+      month ASC 
+    LIMIT 1000;`
 
   const parsedData = data.map(({ year, month, ppm }) => {
     return {
@@ -16,7 +25,7 @@ async function getData() {
       ppm: parseFloat(ppm),
     }
   })
-  
+
   return parsedData
 }
 
