@@ -1,3 +1,4 @@
+import { getPPMScale, getRadianScale, toCartesian3D } from '@/data/helpers';
 import postgres from 'postgres';
 
 const sql = postgres(<string>process.env.DB_URL, 
@@ -26,7 +27,16 @@ async function getData() {
     }
   })
 
-  return parsedData
+  const radianScale = getRadianScale(parsedData)
+  const ppmScale = getPPMScale(parsedData)
+  const cartesianData = parsedData.map((d) => {
+    return {
+      ...d,
+      coordinates: toCartesian3D(d, radianScale, ppmScale),
+    }
+  })
+
+  return cartesianData
 }
 
 export async function GET() {

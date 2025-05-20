@@ -18,7 +18,7 @@ export function useRenderer({ canvasRef }: { canvasRef: RefObject<HTMLCanvasElem
       renderer.current.toneMappingExposure = 1.75
       renderer.current.shadowMap.enabled = true
       renderer.current.shadowMap.type = THREE.PCFSoftShadowMap
-      renderer.current.setClearColor('#211d20')
+      renderer.current.setClearColor('#d1d1d1')
     }
   }, [ canvasRef ])
 
@@ -33,7 +33,6 @@ export function useRenderer({ canvasRef }: { canvasRef: RefObject<HTMLCanvasElem
 
   const update = useCallback((scene: THREE.Scene, camera: THREE.PerspectiveCamera) => {
     if (renderer.current) {
-      console.log('🏗 update renderer')
       renderer.current.render(scene, camera)
     }
   }, [])

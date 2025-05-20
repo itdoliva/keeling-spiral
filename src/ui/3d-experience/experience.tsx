@@ -52,8 +52,6 @@ export function Experience({ data }: { data: MonthCO2[] }) {
 
     onResize()
 
-    console.log(data)
-
     return () => {
       sizes.remove(onResize)
       time.remove(onTick)
