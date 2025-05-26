@@ -1,4 +1,4 @@
-import { getPPMScale, getRadianScale, toCartesian3D } from '@/data/helpers';
+import { MonthCO2 } from '@/data/definitions';
 import postgres from 'postgres';
 
 const sql = postgres(<string>process.env.DB_URL, 
@@ -8,7 +8,7 @@ const sql = postgres(<string>process.env.DB_URL,
     max: 5, // max connections
   });
 
-async function getData() {
+async function getData()  {
   const data = await sql`
     SELECT 
       year::int AS year,
@@ -27,16 +27,7 @@ async function getData() {
     }
   })
 
-  const radianScale = getRadianScale(parsedData)
-  const ppmScale = getPPMScale(parsedData)
-  const cartesianData = parsedData.map((d) => {
-    return {
-      ...d,
-      coordinates: toCartesian3D(d, radianScale, ppmScale),
-    }
-  })
-
-  return cartesianData
+  return parsedData
 }
 
 export async function GET() {

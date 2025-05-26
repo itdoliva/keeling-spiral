@@ -1,7 +1,7 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { useEventEmitter } from "./events"
 
-export interface ITime {
+export interface UseTime {
   elapsed: number;
   delta: number;
   current: number;
@@ -9,7 +9,7 @@ export interface ITime {
   remove: (callback: () => void) => void;
 }
 
-export function useTime(): ITime {
+export function useTime(): UseTime {
   const { add, remove, trigger } = useEventEmitter()
 
   const start = useRef(Date.now())

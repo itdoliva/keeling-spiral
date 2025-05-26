@@ -1,10 +1,10 @@
-export type RawMonthCO2 = {
+export type MonthCO2 = {
   date: Date;
   ppm: number;
 };
 
-export type MonthCO2 = {
-  date: Date;
-  ppm: number;
-  coordinates: { x: number; y: number; z: number };
-};
+// export type MonthCO2 = {
+//   date: Date;
+//   ppm: number;
+//   coordinates: { x: number; y: number; z: number };
+// };

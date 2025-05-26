@@ -1,15 +1,14 @@
 import { useRef, useEffect, useCallback, RefObject } from 'react'
 import { useEventEmitter } from './events'
 
+export interface Sizes {
+  width: number;
+  height: number;
+  pixelRatio: number;
+}
 
-export type SizesObject = RefObject<{
-  width: number
-  height: number
-  pixelRatio: number
-}>
-
-export interface ISizes {
-  ref: SizesObject;
+export interface UseSizes {
+  ref: RefObject<Sizes>;
   add: (callback: () => void) => void;
   remove: (callback: () => void) => void;
 }
