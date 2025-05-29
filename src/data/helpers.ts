@@ -1,24 +1,24 @@
 import * as d3 from "d3"
 import { MonthCO2 } from "./definitions";
 
-export function getRadianScale(data: MonthCO2[]) {
-  return d3.scalePoint()
-    .domain(d3.range(0, 12).map((d: number) => d.toString()))
-    .range([0, 2 * Math.PI])
-    .padding(0.5)
-}
+export function groupByYear(data: MonthCO2[]) {
+  
+  const grouped: any[] = []
 
-export function getPPMScale(data: MonthCO2[]) {
-  return d3.scaleLinear()
-    .domain(d3.extent(data, (d: MonthCO2) => d.ppm) as [number, number])
-    .range([0, 10])
-}
+  d3.group(data, (d: MonthCO2) => d.date.getFullYear())
+    .forEach((yearData: MonthCO2[], year: number) => {
+      const ppmAvg = d3.mean(yearData, (d: MonthCO2) => d.ppm) || 0;
+      const months = yearData.map(monthData => ({
+        ...monthData,
+        month: monthData.date.getMonth().toString(),
+      }))
 
-export function toCartesian3D(d: MonthCO2, radianScale: d3.ScalePoint<string>, ppmScale: d3.ScaleLinear<number, number>) {
-  const angle = radianScale(d.date.getMonth().toString())
-  const x = Math.cos(angle!) * 1
-  const z = Math.sin(angle!) * 1
-  const y = ppmScale(d.ppm)
+      grouped.push({
+        year: year.toString(),
+        ppmAvg: ppmAvg,
+        months: months,
+      })
+    })
 
-  return { x, y, z }
+  return grouped
 }

@@ -11,13 +11,6 @@ import { UsePointer } from './pointer';
 type Spiral = THREE.Group & {
   children: [ THREE.LineLoop, THREE.Group ]
 }
-interface Tick {
-  value: number;
-  coordinate: THREE.Vector3;
-  type: 'major' | 'tick' | 'minor';
-  vector: THREE.Vector3;
-};
-
 
 // --- Constants ---
 const markerGeometry = new THREE.SphereGeometry(0.0575, 16, 16)

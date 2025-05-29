@@ -4,7 +4,8 @@ import * as d3 from "d3"
 
 import { useDrag } from '@/ui/3d-experience/utils/drag'; 
 import { useEnvironment } from "./environment";
-import { useSpiralChart } from "./chart";
+import { useSpiralChart } from "./spiral-chart";
+import { useBubbleChart } from "./bubble-chart";
 import { MonthCO2 } from "@/data/definitions";
 import { UseDebug } from "../utils/debug";
 import { UseCamera } from "../camera";
@@ -12,6 +13,7 @@ import { UseSizes } from "../utils/sizes";
 import { useFloor } from "./floor";
 import { useLengthAxis } from "./lengthAxis";
 import { usePointer } from "./pointer";
+import { useMonthAxis } from "./monthAxis";
 
 
 export interface UseWorld {
@@ -47,6 +49,16 @@ const makeAngleScale = (months: string[]): d3.ScalePoint<string> => {
     .padding(0.5)
 }
 
+const makeTestMesh = () => {
+  const geometry = new THREE.CylinderGeometry( 1.5, 1.5, 4, 32)
+  const material = new THREE.MeshBasicMaterial( { color: 0xc1d4c0, opacity: .95 } );
+  material.transparent = true
+  const mesh = new THREE.Mesh( geometry, material )
+  mesh.position.set(0, 2, 0)
+
+  return mesh
+}
+
 
 
 export function useWorld({ data, scene, camera, sizes, debug }: UseWorld) {
@@ -63,19 +75,12 @@ export function useWorld({ data, scene, camera, sizes, debug }: UseWorld) {
 
   const context = useRef(new THREE.Group())
   const floor = useFloor({ context: context.current, debug })
-  const chart = useSpiralChart({ data, context: context.current, lengthScale, angleScale, config: chartConfig, pointer })
+  
   const lengthAxis = useLengthAxis({ context: context.current, lengthScale, config: chartConfig, camera, sizes })
+  const monthAxis = useMonthAxis({ context: scene, months: months.current, angleScale, config: chartConfig, camera, sizes })
+  
+  const chart = useBubbleChart({ data, context: context.current, lengthScale, angleScale, config: chartConfig, pointer })
 
-
-  const setTestMesh = useCallback(() => {
-    const geometry = new THREE.CylinderGeometry( 1.5, 1.5, 4, 32)
-    const material = new THREE.MeshBasicMaterial( { color: 0xc1d4c0, opacity: .95 } );
-    material.transparent = true
-    const mesh = new THREE.Mesh( geometry, material )
-    mesh.position.set(0, 2, 0)
-    // mesh.rotation.x = -Math.PI / 2
-    scene.add(mesh)
-  }, [])
 
   // Setup
   useEffect(() => {
@@ -83,11 +88,13 @@ export function useWorld({ data, scene, camera, sizes, debug }: UseWorld) {
 
     drag.yEmitter.add((deltaY) => {
       const newY = context.current.position.y + (-deltaY * 0.0035)
-      context.current.position.y = Math.min(Math.max(newY, -(chartConfig.lengthRange - 2)), 0.5)
+      context.current.position.y = Math.min(Math.max(newY, -(chartConfig.lengthRange - 2)), 0.25)
     })
 
     drag.xEmitter.add((deltaX) => {
-      chart.ref.current.rotation.y += (Math.PI/180) * deltaX * 0.05; // Adjust sensitivity as needed
+      const factor = (Math.PI/180) * deltaX * 0.05 // Adjust sensitivity as needed
+      chart.ref.current.rotation.y += factor
+      monthAxis.ref.current.rotation.y += factor
     })
 
     const setAxesHelper = (size: number = 10) => {
