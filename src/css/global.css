@@ -33,3 +33,22 @@ body {
   font-size: 12px;
   color: #000;
 }
+
+
+
+/* Controllers */
+.years-controller {
+  /* user-select: text; */
+}
+
+.years-controller ul li {
+  position: absolute;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  transform: translate(-50%, 0);
+  bottom: 0;
+}
+
+
+

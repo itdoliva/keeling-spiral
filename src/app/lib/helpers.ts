@@ -27,3 +27,24 @@ export const makeBufferGeometry = (positions: number[] | THREE.Vector3[]) => {
 
   return geometry
 }
+
+export const isDecade = (year: string): boolean => {
+  if (year.length !== 4 || isNaN(Number(year))) {
+    throw new Error('Invalid year format. Year must be a 4-digit number.');
+  }
+  return Number(year) % 10 === 0
+}
+
+export const formatDecade = (year: string): string => {
+  if (year === '2000') {
+    return '2000s'
+  }
+  return "'" + year.slice(2, 4) + 's'
+}
+
+export const bodyStyle = {
+  setCursor: (value: string) => document.body.style.cursor = value,
+  resetCursor: () => document.body.style.cursor = 'auto',
+  disableSelect: () => document.body.style.userSelect = 'none',
+  enableSelect: () => document.body.style.userSelect = '',
+}
