@@ -1,19 +1,24 @@
 import { RefObject, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from 'three'
 import * as d3 from "d3"
+import gsap from "gsap";
 
 import { useDrag } from '@/ui/3d-experience/utils/drag'; 
 import { useEnvironment } from "./environment";
-import { useSpiralChart } from "./spiral-chart";
 import { useBubbleChart } from "./bubble-chart";
 import { MonthCO2 } from "@/data/definitions";
 import { UseDebug } from "../utils/debug";
 import { UseCamera } from "../camera";
 import { UseSizes } from "../utils/sizes";
 import { useFloor } from "./floor";
-import { useLengthAxis } from "./lengthAxis";
+import { useLengthAxis } from "./length-axis";
 import { usePointer } from "./pointer";
-import { useMonthAxis } from "./monthAxis";
+import { useMonthBars } from "./month-bars";
+import { useMonthAxis } from "./month-axis";
+import { useAppState } from "@/ui/context";
+import { groupByYear } from "@/data/helpers";
+import { CHART_CONFIG } from "@/app/lib/config";
+import { ChartConfig } from "@/data/definitions";
 
 
 export interface UseWorld {
@@ -24,16 +29,6 @@ export interface UseWorld {
   sizes: UseSizes;
 }
 
-export interface ChartConfig {
-  lengthRange: number; // Length range in PPM
-  radius: number; // Radius of the spiral
-}
-
-// Constants
-const chartConfig: ChartConfig = {
-  lengthRange: 25,
-  radius: 1,
-}
 
 
 const makeLengthScale = (lengthRange: number): d3.ScaleLinear<number, number> => {
@@ -43,29 +38,24 @@ const makeLengthScale = (lengthRange: number): d3.ScaleLinear<number, number> =>
 }
 
 const makeAngleScale = (months: string[]): d3.ScalePoint<string> => {
+  const startAt = Math.PI/2 + Math.PI/3.7
+  const endAt = -2*Math.PI + startAt
+
   return d3.scalePoint()
     .domain(months)
-    .range([0, 2 * Math.PI])
+    .range([ startAt, endAt ])
     .padding(0.5)
 }
 
-const makeTestMesh = () => {
-  const geometry = new THREE.CylinderGeometry( 1.5, 1.5, 4, 32)
-  const material = new THREE.MeshBasicMaterial( { color: 0xc1d4c0, opacity: .95 } );
-  material.transparent = true
-  const mesh = new THREE.Mesh( geometry, material )
-  mesh.position.set(0, 2, 0)
-
-  return mesh
-}
-
-
-
 export function useWorld({ data, scene, camera, sizes, debug }: UseWorld) {
+
+  const state = useAppState()
+
+  const groupedData = useRef(groupByYear(data))
 
   const months = useRef(d3.range(0, 12).map((d: number) => d.toString()))
 
-  const lengthScale = useRef(makeLengthScale(chartConfig.lengthRange))
+  const lengthScale = useRef(makeLengthScale(CHART_CONFIG.lengthRange))
   const angleScale = useRef(makeAngleScale(months.current))
 
   const pointer = usePointer({ sizes, camera })
@@ -74,27 +64,25 @@ export function useWorld({ data, scene, camera, sizes, debug }: UseWorld) {
   const environment = useEnvironment({ scene, debug })
 
   const context = useRef(new THREE.Group())
-  const floor = useFloor({ context: context.current, debug })
   
-  const lengthAxis = useLengthAxis({ context: context.current, lengthScale, config: chartConfig, camera, sizes })
-  const monthAxis = useMonthAxis({ context: scene, months: months.current, angleScale, config: chartConfig, camera, sizes })
+  const lengthAxis = useLengthAxis({ context: context.current, lengthScale, config: CHART_CONFIG, camera, sizes })
+  const monthBars = useMonthBars({ context: context.current, groupedData: groupedData.current, months: months.current, lengthScale, angleScale, config: CHART_CONFIG })
+  const monthAxis = useMonthAxis({ axisGroup: monthBars.ref.current, camera, sizes })
   
-  const chart = useBubbleChart({ data, context: context.current, lengthScale, angleScale, config: chartConfig, pointer })
-
+  const yearBubbles = useBubbleChart({ groupedData: groupedData.current, context: context.current, lengthScale, camera, sizes })
 
   // Setup
   useEffect(() => {
     scene.add(context.current)
 
-    drag.yEmitter.add((deltaY) => {
-      const newY = context.current.position.y + (-deltaY * 0.0035)
-      context.current.position.y = Math.min(Math.max(newY, -(chartConfig.lengthRange - 2)), 0.25)
-    })
+    // drag.yEmitter.add((deltaY) => {
+    //   const newY = context.current.position.y + (-deltaY * 0.0035)
+    //   context.current.position.y = Math.min(Math.max(newY, -(CHART_CONFIG.lengthRange - 2)), 0.25)
+    // })
 
     drag.xEmitter.add((deltaX) => {
       const factor = (Math.PI/180) * deltaX * 0.05 // Adjust sensitivity as needed
-      chart.ref.current.rotation.y += factor
-      monthAxis.ref.current.rotation.y += factor
+      monthBars.ref.current.rotation.y += factor
     })
 
     const setAxesHelper = (size: number = 10) => {
@@ -105,20 +93,19 @@ export function useWorld({ data, scene, camera, sizes, debug }: UseWorld) {
     const setTweaks = () => {
       const folder = debug.ref.current.gui!.addFolder('Chart')
       
-      folder.add(chartConfig, 'lengthRange')
+      folder.add(CHART_CONFIG, 'lengthRange')
         .name('Length Range (PPM)')
         .min(0).max(30).step(.1)
         .onFinishChange(() => {
-          lengthScale.current = makeLengthScale(chartConfig.lengthRange)
+          lengthScale.current = makeLengthScale(CHART_CONFIG.lengthRange)
           // chart.reposition()
         })
 
-      folder.add(chartConfig, 'radius')
+      folder.add(CHART_CONFIG, 'radius')
         .name('Radius')
         .min(0).max(10).step(.1)
         .onFinishChange(() => {
-          chartConfig.radius = chartConfig.radius
-          // chart.reposition()
+          CHART_CONFIG.radius = CHART_CONFIG.radius
         })
     }
 
@@ -130,9 +117,24 @@ export function useWorld({ data, scene, camera, sizes, debug }: UseWorld) {
   }, [])
 
   const update = useCallback(() => {
-    chart.update()
+    yearBubbles.update()
     lengthAxis.update()
-  }, [ chart ])
+    monthAxis.update()
+  }, [ yearBubbles ])
+
+  useEffect(() => {
+    const yearData = groupedData.current.find(d => d.year === state.selectedYear)
+    const y = lengthScale.current(yearData!.avgPPM)
+
+    gsap.to(context.current.position, {
+      y: -y + 1.5,
+      ease: 'power3.out',
+      duration: .750,
+      overwrite: true,
+      onUpdate: () => context.current.updateMatrixWorld(true)
+    })
+
+  }, [ state.selectedYear ])
 
 
   return { 

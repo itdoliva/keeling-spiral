@@ -2,9 +2,11 @@ import * as THREE from 'three'
 import * as d3 from "d3"
 import { makeBufferGeometry } from '@/app/lib/helpers';
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
-import { ChartConfig } from './world';
+import { ChartConfig } from '@/data/definitions';
 import { UseCamera } from '../camera';
 import { UseSizes } from '../utils/sizes';
+
+import { TICK_SIZES, AXIS_OFFSET } from '@/app/lib/config';
 
 type TickType = 'minor' | 'major' | 'half';
 
@@ -20,11 +22,6 @@ interface PositionedTick extends Tick {
 // Constants
 const axisMaterial = new THREE.LineBasicMaterial({ color: '#1c1c1c', linewidth: 1 })
 
-const tickVectors = {
-  major: new THREE.Vector3(-.3, 0, 0),
-  half: new THREE.Vector3(-.125, 0, 0),
-  minor: new THREE.Vector3(-.05, 0, 0)
-}
 
 // --- Utility functions ---
 const makeLineMesh = (positions: number[] | THREE.Vector3[]) => {
@@ -62,7 +59,7 @@ export function useLengthAxis({ context, lengthScale, config, camera, sizes }: {
   const axis = useRef(new THREE.Group())
 
   const getAxisPosition = useCallback(() => {
-    return new THREE.Vector3(-(config.radius + .5), 0, 0)
+    return new THREE.Vector3(-(config.radius + AXIS_OFFSET), 0, 0)
   }, [ config ])
 
   const getTickPosition = useCallback((tick: Tick): THREE.Vector3 => {
@@ -89,7 +86,7 @@ export function useLengthAxis({ context, lengthScale, config, camera, sizes }: {
     tickData.forEach((d) => {
       const positions = [ 
         d.coordinate, 
-        d.coordinate.clone().add(tickVectors[d.type])
+        d.coordinate.clone().add(TICK_SIZES[d.type])
       ]
       tickLines.push(makeLineMesh(positions))
     })
@@ -126,7 +123,7 @@ export function useLengthAxis({ context, lengthScale, config, camera, sizes }: {
 
         const screenPosition = coordinate.clone()
         screenPosition.add(getAxisPosition())
-        screenPosition.add(tickVectors[type])
+        screenPosition.add(TICK_SIZES[type])
         screenPosition.add(context.position)
         screenPosition.project(<THREE.PerspectiveCamera>(camera.ref.current))
 

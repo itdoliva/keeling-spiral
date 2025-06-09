@@ -1,7 +1,9 @@
 import { useRef, useEffect, useCallback, RefObject } from 'react'
+import { CAMERA } from '@/app/lib/config';
 
 import * as THREE from 'three'
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { UseDebug } from './utils/debug';
 
 export interface UseCamera {
   ref: RefObject<THREE.PerspectiveCamera>;
@@ -9,9 +11,10 @@ export interface UseCamera {
   update: () => void;
 }
 
-export function useCamera({ scene, canvasRef }: {
+export function useCamera({ scene, canvasRef, debug }: {
   scene: THREE.Scene;
   canvasRef: RefObject<HTMLCanvasElement | null>;
+  debug: UseDebug
 }): UseCamera {
 
   const camera = useRef<THREE.PerspectiveCamera>(new THREE.PerspectiveCamera(35, 1, 0.1, 1000))
@@ -19,17 +22,19 @@ export function useCamera({ scene, canvasRef }: {
 
   // Setup
   useEffect(() => {
-    camera.current.position.set(2, 3, 8)
-    camera.current.lookAt(0, 2, 0)
+    camera.current.position.copy(CAMERA.position)
+    camera.current.lookAt(CAMERA.lookAt)
+    camera.current.updateProjectionMatrix()
     scene.add(camera.current)
-
-    if (canvasRef.current instanceof HTMLCanvasElement) {
-  
-      // controls.current = new OrbitControls(camera.current, canvasRef.current)
-      // controls.current.enableDamping = true
-      // controls.current.target.set(0, 2, 0)
+    
+    if (canvasRef.current instanceof HTMLCanvasElement && debug.ref.current.active) {
+      controls.current = new OrbitControls(camera.current, canvasRef.current)
+      controls.current.enableDamping = true
+      controls.current.target.set(0, 2, 0)
     }
+
   }, [ canvasRef ])
+
 
   const resize = useCallback((sizes: any) => {
     camera.current.aspect = sizes.width / sizes.height
@@ -37,9 +42,9 @@ export function useCamera({ scene, canvasRef }: {
   }, [])
   
   const update = useCallback(() => {
-    // if (controls.current instanceof OrbitControls) {
-    //   controls.current.update()
-    // }
+    if (debug.ref.current.active && controls.current instanceof OrbitControls) {
+      controls.current.update()
+    }
   }, [])
 
   return { ref: camera, resize, update }

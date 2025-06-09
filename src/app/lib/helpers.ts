@@ -48,3 +48,27 @@ export const bodyStyle = {
   disableSelect: () => document.body.style.userSelect = 'none',
   enableSelect: () => document.body.style.userSelect = '',
 }
+
+export const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
+  return Math.sqrt(
+    Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)
+  )
+}
+
+export const makeTestMesh = () => {
+  const geometry = new THREE.CylinderGeometry( 1.5, 1.5, 4, 32)
+  const material = new THREE.MeshBasicMaterial( { color: 0xc1d4c0, opacity: .95 } );
+  material.transparent = true
+  const mesh = new THREE.Mesh( geometry, material )
+  mesh.position.set(0, 2, 0)
+
+  return mesh
+}
+
+export const getMeshBoundingBox = (mesh: THREE.Mesh) => {
+  const boundingBox = new THREE.Box3()
+  const size = new THREE.Vector3()
+  boundingBox.setFromObject(mesh)
+  boundingBox.getSize(size)
+  return size
+}

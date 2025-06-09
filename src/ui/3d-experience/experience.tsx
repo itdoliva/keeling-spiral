@@ -23,7 +23,7 @@ export function Experience({ data }: { data: MonthCO2[] }) {
   const debug = useDebug()
 
   const renderer = useRenderer({ canvasRef, debug })
-  const camera = useCamera({ canvasRef, scene: sceneRef.current })
+  const camera = useCamera({ canvasRef, scene: sceneRef.current, debug })
 
   const world = useWorld({ data, camera, sizes, scene: sceneRef.current, debug })
 

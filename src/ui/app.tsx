@@ -11,6 +11,7 @@ export function App({ data }: { data: MonthCO2[] }) {
 
   return (
     <main className="">
+      <div className="label-layer" />
       <AppStateProvider>
         <Controllers years={years} />
         <Experience data={data} />
