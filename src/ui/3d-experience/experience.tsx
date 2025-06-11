@@ -9,10 +9,10 @@ import { useRenderer } from './renderer'
 import { useTime } from './utils/time'
 import { useDebug } from './utils/debug'
 import { useWorld } from './world/world';
-import { MonthCO2 } from '@/data/definitions';
+import { Dataset } from '@/data/definitions';
 
 
-export function Experience({ data }: { data: MonthCO2[] }) {
+export function Experience({ dataset }: { dataset: Dataset }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
   const sceneRef = useRef(new THREE.Scene())
@@ -25,7 +25,7 @@ export function Experience({ data }: { data: MonthCO2[] }) {
   const renderer = useRenderer({ canvasRef, debug })
   const camera = useCamera({ canvasRef, scene: sceneRef.current, debug })
 
-  const world = useWorld({ data, camera, sizes, scene: sceneRef.current, debug })
+  const world = useWorld({ dataset, camera, sizes, scene: sceneRef.current, debug })
 
   const onResize = useCallback(() => {
     camera.resize(sizes.ref.current)

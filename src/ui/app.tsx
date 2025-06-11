@@ -1,20 +1,18 @@
 'use client'
 
-import { MonthCO2 } from "@/data/definitions";
-import { Experience } from "@/ui/3d-experience/experience";
-import { Controllers } from "@/ui/controllers/controllers";
+import { MasterDataset, Dataset } from "@/data/definitions";
+import { DataController } from "./data-controller";
 import { AppStateProvider } from "./context";
 
 
-export function App({ data }: { data: MonthCO2[] }) {
-  const years = [ ...new Set(data.map(d => d.date.getFullYear())) ].map(String)
+
+export function App({ master }: { master: MasterDataset }) {
 
   return (
     <main className="">
       <div className="label-layer" />
       <AppStateProvider>
-        <Controllers years={years} />
-        <Experience data={data} />
+        <DataController master={master} />
       </AppStateProvider>
     </main>
   )

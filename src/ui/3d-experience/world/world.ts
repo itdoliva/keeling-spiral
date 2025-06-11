@@ -6,7 +6,7 @@ import gsap from "gsap";
 import { useDrag } from '@/ui/3d-experience/utils/drag'; 
 import { useEnvironment } from "./environment";
 import { useBubbleChart } from "./bubble-chart";
-import { MonthCO2 } from "@/data/definitions";
+import { Dataset, MonthCO2 } from "@/data/definitions";
 import { UseDebug } from "../utils/debug";
 import { UseCamera } from "../camera";
 import { UseSizes } from "../utils/sizes";
@@ -19,10 +19,11 @@ import { useAppState } from "@/ui/context";
 import { groupByYear } from "@/data/helpers";
 import { CHART_CONFIG } from "@/app/lib/config";
 import { ChartConfig } from "@/data/definitions";
+import { useSpiralChart } from "./spiral-chart";
 
 
 export interface UseWorld {
-  data: MonthCO2[];
+  dataset: Dataset;
   scene: THREE.Scene;
   debug: UseDebug;
   camera: UseCamera;
@@ -37,43 +38,45 @@ const makeLengthScale = (lengthRange: number): d3.ScaleLinear<number, number> =>
     .range([0, lengthRange])
 }
 
-const makeAngleScale = (months: string[]): d3.ScalePoint<string> => {
-  const startAt = Math.PI/2 + Math.PI/3.7
-  const endAt = -2*Math.PI + startAt
 
-  return d3.scalePoint()
-    .domain(months)
-    .range([ startAt, endAt ])
-    .padding(0.5)
+
+const makeAngleScale = (): d3.ScaleLinear<number, number> => {
+  return d3.scaleLinear()
+    .domain([ 0, 12 ])
+    .range([ CHART_CONFIG.angleStart, CHART_CONFIG.angleEnd ])
 }
 
-export function useWorld({ data, scene, camera, sizes, debug }: UseWorld) {
+export function useWorld({ dataset, scene, camera, sizes, debug }: UseWorld) {
 
   const state = useAppState()
 
-  const groupedData = useRef(groupByYear(data))
+  // const groupedData = useRef(groupByYear(data))
 
   const months = useRef(d3.range(0, 12).map((d: number) => d.toString()))
 
   const lengthScale = useRef(makeLengthScale(CHART_CONFIG.lengthRange))
-  const angleScale = useRef(makeAngleScale(months.current))
+  const angleScale = useRef(makeAngleScale())
 
   const pointer = usePointer({ sizes, camera })
   const drag = useDrag()
   
   const environment = useEnvironment({ scene, debug })
 
-  const context = useRef(new THREE.Group())
+  const figure = useRef(new THREE.Group())
+  const chart = useRef(new THREE.Group())
   
-  const lengthAxis = useLengthAxis({ context: context.current, lengthScale, config: CHART_CONFIG, camera, sizes })
-  const monthBars = useMonthBars({ context: context.current, groupedData: groupedData.current, months: months.current, lengthScale, angleScale, config: CHART_CONFIG })
-  const monthAxis = useMonthAxis({ axisGroup: monthBars.ref.current, camera, sizes })
+  const lengthAxis = useLengthAxis({ context: figure.current, lengthScale, config: CHART_CONFIG, camera, sizes })
+  // const yearBubbles = useBubbleChart({ groupedData: groupedData.current, context: figure.current, lengthScale, camera, sizes })
+
+  // const monthBars = useMonthBars({ context: chart.current, groupedData: groupedData.current, months: months.current, lengthScale, angleScale, config: CHART_CONFIG })
+  // const monthAxis = useMonthAxis({ axisGroup: monthBars.ref.current, camera, sizes })
   
-  const yearBubbles = useBubbleChart({ groupedData: groupedData.current, context: context.current, lengthScale, camera, sizes })
+  const spiralChart = useSpiralChart({ dataset, context: chart.current, lengthScale, angleScale, config: CHART_CONFIG })
 
   // Setup
   useEffect(() => {
-    scene.add(context.current)
+    scene.add(figure.current)
+    figure.current.add(chart.current)
 
     // drag.yEmitter.add((deltaY) => {
     //   const newY = context.current.position.y + (-deltaY * 0.0035)
@@ -82,7 +85,8 @@ export function useWorld({ data, scene, camera, sizes, debug }: UseWorld) {
 
     drag.xEmitter.add((deltaX) => {
       const factor = (Math.PI/180) * deltaX * 0.05 // Adjust sensitivity as needed
-      monthBars.ref.current.rotation.y += factor
+      chart.current.rotation.y += factor
+      // monthBars.ref.current.rotation.y += factor
     })
 
     const setAxesHelper = (size: number = 10) => {
@@ -117,22 +121,22 @@ export function useWorld({ data, scene, camera, sizes, debug }: UseWorld) {
   }, [])
 
   const update = useCallback(() => {
-    yearBubbles.update()
-    lengthAxis.update()
-    monthAxis.update()
-  }, [ yearBubbles ])
+    // yearBubbles.update()
+    // lengthAxis.update()
+    // monthAxis.update()
+  }, [  ]) //yearBubbles
 
   useEffect(() => {
-    const yearData = groupedData.current.find(d => d.year === state.selectedYear)
-    const y = lengthScale.current(yearData!.avgPPM)
+    // const yearData = groupedData.current.find(d => d.year === state.selectedYear)
+    // const y = lengthScale.current(yearData!.avgPPM)
 
-    gsap.to(context.current.position, {
-      y: -y + 1.5,
-      ease: 'power3.out',
-      duration: .750,
-      overwrite: true,
-      onUpdate: () => context.current.updateMatrixWorld(true)
-    })
+    // gsap.to(figure.current.position, {
+    //   y: -y + 1.5,
+    //   ease: 'power3.out',
+    //   duration: .750,
+    //   overwrite: true,
+    //   onUpdate: () => figure.current.updateMatrixWorld(true)
+    // })
 
   }, [ state.selectedYear ])
 

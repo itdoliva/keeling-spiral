@@ -1,5 +1,5 @@
 import * as d3 from "d3"
-import { MonthCO2, YearCO2 } from "./definitions";
+import { AnnualDatum, MonthlyDatum, InterpolatedDatum, MonthCO2, YearCO2 } from "./definitions";
 
 export function groupByYear(data: MonthCO2[]): YearCO2[] {
   
@@ -22,3 +22,8 @@ export function groupByYear(data: MonthCO2[]): YearCO2[] {
 
   return grouped
 }
+
+export const groupByLocation = (data: Array<AnnualDatum | MonthlyDatum | InterpolatedDatum>) => {
+  return d3.group(data, d => d.location)
+}
+

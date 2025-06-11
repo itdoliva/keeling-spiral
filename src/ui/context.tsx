@@ -1,17 +1,24 @@
+import { MeasureLocation, MasterDataset, Dataset } from '@/data/definitions';
 import { createContext, useContext, useReducer } from 'react';
 
 export interface AppState {
-  selectedYear: string;
-  hoveredYear: string | null;
+  location: MeasureLocation;
+  selectedYear: number;
+  hoveredYear: number | null;
 }
 
 const initialAppState = {
-  selectedYear: '1980',
+  location: 'MLO',
+  selectedYear: 1980,
   hoveredYear: null,
-}
+} as AppState
 
-const AppStateContext = createContext<AppState>(initialAppState)
-const AppStateDispatchContext = createContext<React.Dispatch<{ type: string; year: string | null; }> | undefined>(undefined);
+type YearAction = { type: 'select' | 'hover', year: any }
+type LocationAction = { type: 'locationToggle' }
+export type Actions = YearAction | LocationAction
+
+const AppStateContext = createContext(initialAppState)
+const AppStateDispatchContext = createContext<React.Dispatch<Actions> | undefined>(undefined);
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [ state, dispatch ] = useReducer(appStateReducer, initialAppState )
@@ -29,26 +36,32 @@ export function useAppState() {
   return useContext(AppStateContext)
 }
 
-export function useAppStateDispatch() {
-  return useContext(AppStateDispatchContext)
+export function useAppStateDispatch(): React.Dispatch<Actions>  {
+  return useContext(AppStateDispatchContext) as React.Dispatch<Actions>
 }
 
-function appStateReducer(appState: AppState, action: { type: string; year: any; }) {
+function appStateReducer(prevState: AppState, action: Actions): AppState {
   switch (action.type) {
     case 'select': {
       return {
-        ...appState, 
-        selectedYear: action.year
+        ...prevState, 
+        selectedYear: +action.year
       };
     }
     case 'hover': {
       return {
-        ...appState, 
-        hoveredYear: action.year
+        ...prevState, 
+        hoveredYear: +action.year
+      }
+    }
+    case 'locationToggle': {
+      return {
+        ...prevState,
+        location: prevState.location === 'GLB' ? 'MLO' : 'GLB'
       }
     }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Error on appStateReducer');
     }
   }
 }

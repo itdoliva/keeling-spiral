@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
-import { useEventEmitter } from "./events"
+import { useEventEmitter } from "../../utils/events"
 
 export interface UseTime {
   elapsed: number;

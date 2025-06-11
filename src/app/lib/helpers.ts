@@ -28,8 +28,8 @@ export const makeBufferGeometry = (positions: number[] | THREE.Vector3[]) => {
   return geometry
 }
 
-export const isDecade = (year: string): boolean => {
-  if (year.length !== 4 || isNaN(Number(year))) {
+export const isDecade = (year: number): boolean => {
+  if (String(year).length !== 4 || isNaN(year)) {
     throw new Error('Invalid year format. Year must be a 4-digit number.');
   }
   return Number(year) % 10 === 0

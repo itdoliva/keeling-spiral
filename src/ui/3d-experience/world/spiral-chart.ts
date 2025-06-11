@@ -1,4 +1,4 @@
-import { MonthCO2 } from '@/data/definitions';
+import { MonthCO2, YearCO2, Dataset } from '@/data/definitions';
 import { useEffect, useRef, useCallback, RefObject } from 'react';
 import * as THREE from 'three';
 import * as d3 from "d3"
@@ -6,6 +6,10 @@ import { UseSizes } from '../utils/sizes';
 import { UseCamera } from '../camera';
 import { makeBufferGeometry } from '@/app/lib/helpers';
 import { UsePointer } from './pointer';
+import { CHART_CONFIG } from '@/app/lib/config'
+
+import jsspline from "@/app/lib/jsspline"
+
 
 // --- Types ---
 type Spiral = THREE.Group & {
@@ -15,12 +19,12 @@ type Spiral = THREE.Group & {
 // --- Constants ---
 const markerGeometry = new THREE.SphereGeometry(0.0575, 16, 16)
 const markerMaterial = new THREE.MeshStandardMaterial({ color: '#333333' })
-const spiralLineMaterial = new THREE.LineBasicMaterial({ color: '#999999', linewidth: 1 })
+const spiralLineMaterial = new THREE.LineBasicMaterial({ color: '#1c1c1c', linewidth: 1 })
 
 
 // --- Utility functions ---
 const makeSpiralLine = (positions: number[] | THREE.Vector3[]) => {
-  return new THREE.LineLoop(makeBufferGeometry(positions), spiralLineMaterial)
+  return new THREE.Line(makeBufferGeometry(positions), spiralLineMaterial)
 }
 
 const makeMarkerMesh = () => {
@@ -29,16 +33,15 @@ const makeMarkerMesh = () => {
   return mesh
 }
 
-export function useSpiralChart({ data, context, lengthScale, angleScale, config, pointer }: { 
-  data: MonthCO2[], 
+
+export function useSpiralChart({ dataset, context, lengthScale, angleScale, config, pointer }: { 
+  dataset: Dataset,
   context: THREE.Object3D, 
   lengthScale: RefObject<d3.ScaleLinear<number, number>>, 
-  angleScale: RefObject<d3.ScalePoint<string>>,
-  pointer: UsePointer,
-  config: { lengthRange: number, radius: number }
+  angleScale: RefObject<d3.ScaleLinear<number, number>>,
+  config: { lengthRange: number, radius: number },
+  pointer?: UsePointer,
 }) {
-
-  const byYearData = useRef(d3.groups(data, (d: MonthCO2) => d.date.getFullYear()))
 
   const chart = useRef(new THREE.Group())
   const spiralsRef = useRef(new Map<string, Spiral>(new Map()))
@@ -118,7 +121,7 @@ export function useSpiralChart({ data, context, lengthScale, angleScale, config,
 
 
   const reposition = useCallback(() => {
-    repositionSpirals()
+    // repositionSpirals()
   }, [])
 
   const update = useCallback(() => {
@@ -140,9 +143,36 @@ export function useSpiralChart({ data, context, lengthScale, angleScale, config,
     context.add(chart.current)
     
     // Create spirals for each year
-    byYearData.current.forEach(([ year, yearData ]) => {
-      makeSpiralMeshes(yearData)
+    // groupedData.forEach(yearData => {
+    //   makeSpiralMeshes(yearData.months)
+    // })
+
+    const positions: number[] = [] 
+    dataset.interpolated.forEach(d => {
+      const angle = angleScale.current(d.monthDecimal)
+
+      const coordinates = { 
+        x: Math.cos(angle!) * CHART_CONFIG.radius, 
+        z: Math.sin(angle!) * CHART_CONFIG.radius,
+        y: lengthScale.current(d.ppm), 
+      }
+
+      positions.push(coordinates.x, coordinates.y, coordinates.z)
     })
+
+
+    // Create the line loop geometry and add it to the spiral
+    const line = makeSpiralLine(positions)
+
+    chart.current.add(line)
+
+
+
+    // groupedData.forEach(yearData => {
+    //   makeSpiralMeshes(yearData.months)
+    // })
+
+
 
     // Clean up function to remove spirals from the scene
     return () => {
