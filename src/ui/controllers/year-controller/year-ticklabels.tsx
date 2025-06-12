@@ -23,7 +23,7 @@ export function YearTicklabels({ ticks, xScaleRef, resizeEmitter }: {
         (update) => update,
         (exit) => exit.remove()
       )
-  }, [ ticks ])
+  }, [ ticks.length ])
 
 
     useEffect(() => {

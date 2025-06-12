@@ -1,5 +1,3 @@
-'use client'
-
 import { useRef, useEffect, useCallback } from 'react'
 import * as THREE from 'three'
 import { useSizes } from './utils/sizes'

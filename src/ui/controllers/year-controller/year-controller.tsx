@@ -69,7 +69,7 @@ export function YearController({ dataset }: { dataset: Dataset }) {
 
     xScaleRef.current.domain(ticks.map(d => d.year))
     onResize()
-  }, [ ticks ])
+  }, [ ticks.length ])
 
   useEffect(() => {
     // console.log(Date.now(), 'YearController :: UseEffect []')

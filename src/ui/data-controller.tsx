@@ -18,11 +18,11 @@ export function DataController({ master }: { master: MasterDataset }) {
       console.log('interval!')
     }
 
-    // const interval = setInterval(toggle, 5000)
+    const interval = setInterval(toggle, 5000)
     // const timeout = setTimeout(toggle, 5000)
 
     return () => {
-      // clearInterval(interval)
+      clearInterval(interval)
       // clearTimeout(timeout)
     }
   }, [ dispatch ])

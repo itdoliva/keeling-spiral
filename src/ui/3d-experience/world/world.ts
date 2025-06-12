@@ -1,4 +1,4 @@
-import { RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { RefObject, useCallback, useEffect, useRef, useState, useMemo } from "react";
 import * as THREE from 'three'
 import * as d3 from "d3"
 import gsap from "gsap";
@@ -6,12 +6,12 @@ import gsap from "gsap";
 import { useDrag } from '@/ui/3d-experience/utils/drag'; 
 import { useEnvironment } from "./environment";
 import { useBubbleChart } from "./bubble-chart";
-import { Dataset, MonthCO2 } from "@/data/definitions";
+import { Dataset, MonthCO2, MonthlyDatum } from "@/data/definitions";
 import { UseDebug } from "../utils/debug";
 import { UseCamera } from "../camera";
 import { UseSizes } from "../utils/sizes";
 import { useFloor } from "./floor";
-import { useLengthAxis } from "./length-axis";
+import { usePPMAxis } from "./ppm-axis";
 import { usePointer } from "./pointer";
 import { useMonthBars } from "./month-bars";
 import { useMonthAxis } from "./month-axis";
@@ -31,33 +31,35 @@ export interface UseWorld {
 }
 
 
-
-const makeLengthScale = (lengthRange: number): d3.ScaleLinear<number, number> => {
-  return d3.scaleLinear()
-    .domain([ 330, 430 ])
-    .range([0, lengthRange])
-}
-
-
-
-const makeAngleScale = (): d3.ScaleLinear<number, number> => {
-  return d3.scaleLinear()
-    .domain([ 0, 12 ])
-    .range([ CHART_CONFIG.angleStart, CHART_CONFIG.angleEnd ])
-}
+const monthScale = d3.scaleLinear()
+  .domain([ 0, 12 ])
+  .range([ CHART_CONFIG.angleStart, CHART_CONFIG.angleEnd ])
 
 export function useWorld({ dataset, scene, camera, sizes, debug }: UseWorld) {
 
   const state = useAppState()
 
-  // const groupedData = useRef(groupByYear(data))
+  const [ minPPM, maxPPM ] = d3.extent(dataset.monthly, d => d.ppm) as number[]
 
-  const months = useRef(d3.range(0, 12).map((d: number) => d.toString()))
+  const ppmScale = useMemo(() => { return d3.scaleLinear()
+    .domain([ Math.floor(minPPM/10)*10, Math.ceil(maxPPM/10)*10 ])
+    .range([ 0, CHART_CONFIG.lengthRange ])
+  }, [ dataset ])
 
-  const lengthScale = useRef(makeLengthScale(CHART_CONFIG.lengthRange))
-  const angleScale = useRef(makeAngleScale())
 
-  const pointer = usePointer({ sizes, camera })
+  const getRadialCoordinates = useCallback((
+    datum: MonthlyDatum, 
+    monthAcc: (d: any) => any = d => d.monthDecimal,
+    ppmAcc: (d: any) => any = d => d.ppm
+  ) => {
+    const angle = monthScale(monthAcc(datum))
+    return { 
+      x: Math.cos(angle!) * CHART_CONFIG.radius, 
+      z: Math.sin(angle!) * CHART_CONFIG.radius,
+      y: ppmScale(ppmAcc(datum)), 
+    }
+  }, [ ppmScale ])
+
   const drag = useDrag()
   
   const environment = useEnvironment({ scene, debug })
@@ -65,13 +67,18 @@ export function useWorld({ dataset, scene, camera, sizes, debug }: UseWorld) {
   const figure = useRef(new THREE.Group())
   const chart = useRef(new THREE.Group())
   
-  const lengthAxis = useLengthAxis({ context: figure.current, lengthScale, config: CHART_CONFIG, camera, sizes })
+  const ppmAxis = usePPMAxis({ context: figure.current, ppmScale, config: CHART_CONFIG, camera, sizes })
   // const yearBubbles = useBubbleChart({ groupedData: groupedData.current, context: figure.current, lengthScale, camera, sizes })
 
   // const monthBars = useMonthBars({ context: chart.current, groupedData: groupedData.current, months: months.current, lengthScale, angleScale, config: CHART_CONFIG })
   // const monthAxis = useMonthAxis({ axisGroup: monthBars.ref.current, camera, sizes })
   
-  const spiralChart = useSpiralChart({ dataset, context: chart.current, lengthScale, angleScale, config: CHART_CONFIG })
+  const spiralChart = useSpiralChart({ 
+    dataset, 
+    context: chart.current, 
+    getRadialCoordinates, 
+    config: CHART_CONFIG 
+  })
 
   // Setup
   useEffect(() => {
@@ -101,8 +108,6 @@ export function useWorld({ dataset, scene, camera, sizes, debug }: UseWorld) {
         .name('Length Range (PPM)')
         .min(0).max(30).step(.1)
         .onFinishChange(() => {
-          lengthScale.current = makeLengthScale(CHART_CONFIG.lengthRange)
-          // chart.reposition()
         })
 
       folder.add(CHART_CONFIG, 'radius')
@@ -121,24 +126,26 @@ export function useWorld({ dataset, scene, camera, sizes, debug }: UseWorld) {
   }, [])
 
   const update = useCallback(() => {
+    ppmAxis.update()
     // yearBubbles.update()
-    // lengthAxis.update()
     // monthAxis.update()
   }, [  ]) //yearBubbles
 
   useEffect(() => {
-    // const yearData = groupedData.current.find(d => d.year === state.selectedYear)
-    // const y = lengthScale.current(yearData!.avgPPM)
+    const yearData = dataset.annual.find(d => d.year === state.selectedYear)
+    if (!yearData) return
 
-    // gsap.to(figure.current.position, {
-    //   y: -y + 1.5,
-    //   ease: 'power3.out',
-    //   duration: .750,
-    //   overwrite: true,
-    //   onUpdate: () => figure.current.updateMatrixWorld(true)
-    // })
+    const y = ppmScale(yearData.ppm)
 
-  }, [ state.selectedYear ])
+    gsap.to(figure.current.position, {
+      y: -y + 1.5,
+      ease: 'power3.out',
+      duration: .750,
+      overwrite: true,
+      onUpdate: () => figure.current.updateMatrixWorld(true)
+    })
+
+  }, [ ppmScale, state.selectedYear ])
 
 
   return { 

@@ -24,6 +24,11 @@ export const CHART_CONFIG = {
   angleEnd: ANGLE_END
 }
 
+export const MARKER_GEOMETRY = new THREE.SphereGeometry(0.01, 16, 16)
+export const MARKER_MATERIAL = new THREE.MeshStandardMaterial({ color: '#5c5c5c' })
+export const SPIRAL_MATERIAL = new THREE.LineBasicMaterial({ color: '#1c1c1c', linewidth: 1 })
+export const AXIS_MATERIAL = new THREE.LineBasicMaterial({ color: '#1c1c1c', linewidth: 1 })
+
 export const AXIS_OFFSET = .5
 
 export const TICK_SIZES = {

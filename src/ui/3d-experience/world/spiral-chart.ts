@@ -6,7 +6,7 @@ import { UseSizes } from '../utils/sizes';
 import { UseCamera } from '../camera';
 import { makeBufferGeometry } from '@/app/lib/helpers';
 import { UsePointer } from './pointer';
-import { CHART_CONFIG } from '@/app/lib/config'
+import { CHART_CONFIG, SPIRAL_MATERIAL, MARKER_GEOMETRY, MARKER_MATERIAL } from '@/app/lib/config'
 
 import jsspline from "@/app/lib/jsspline"
 
@@ -16,108 +16,85 @@ type Spiral = THREE.Group & {
   children: [ THREE.LineLoop, THREE.Group ]
 }
 
-// --- Constants ---
-const markerGeometry = new THREE.SphereGeometry(0.0575, 16, 16)
-const markerMaterial = new THREE.MeshStandardMaterial({ color: '#333333' })
-const spiralLineMaterial = new THREE.LineBasicMaterial({ color: '#1c1c1c', linewidth: 1 })
-
 
 // --- Utility functions ---
-const makeSpiralLine = (positions: number[] | THREE.Vector3[]) => {
-  return new THREE.Line(makeBufferGeometry(positions), spiralLineMaterial)
-}
-
-const makeMarkerMesh = () => {
-  const mesh = new THREE.Mesh(markerGeometry, markerMaterial)
-  mesh.castShadow = true
-  return mesh
+const makeMarker = () => {
+  return new THREE.Mesh(MARKER_GEOMETRY, MARKER_MATERIAL)
 }
 
 
-export function useSpiralChart({ dataset, context, lengthScale, angleScale, config, pointer }: { 
+export function useSpiralChart({ dataset, context, getRadialCoordinates, config }: { 
   dataset: Dataset,
   context: THREE.Object3D, 
-  lengthScale: RefObject<d3.ScaleLinear<number, number>>, 
-  angleScale: RefObject<d3.ScaleLinear<number, number>>,
+  getRadialCoordinates: (...args: any[]) => any,
   config: { lengthRange: number, radius: number },
-  pointer?: UsePointer,
 }) {
 
-  const chart = useRef(new THREE.Group())
-  const spiralsRef = useRef(new Map<string, Spiral>(new Map()))
+  const chartRef = useRef(new THREE.Group())
   const markersRef = useRef<THREE.Group[]>([])
 
-  const getCoordinates = (d: MonthCO2) => {
-    const angle = angleScale.current(d.date.getMonth().toString())
 
-    return { 
-      x: Math.cos(angle!) * config.radius, 
-      z: Math.sin(angle!) * config.radius,
-      y: lengthScale.current(d.ppm), 
-    }
-  }
+  // const makeSpiralMeshes = useCallback((yearData: MonthCO2[]): { 
+  //   spiral: Spiral, 
+  //   markers: THREE.Group 
+  // } => {
+  //   const year = yearData[0].date.getFullYear()
 
-  const makeSpiralMeshes = useCallback((yearData: MonthCO2[]): { 
-    spiral: Spiral, 
-    markers: THREE.Group 
-  } => {
-    const year = yearData[0].date.getFullYear()
+  //   // Create a new spiral group for the year
+  //   const spiral = new THREE.Group()
+  //   spiral.userData = { 
+  //     year: year, 
+  //     data: yearData 
+  //   }
 
-    // Create a new spiral group for the year
-    const spiral = new THREE.Group()
-    spiral.userData = { 
-      year: year, 
-      data: yearData 
-    }
+  //   const positions: number[] = [] // Positions array to hold line loop coordinates
+  //   const markers = new THREE.Group() // Group to hold marker meshes
 
-    const positions: number[] = [] // Positions array to hold line loop coordinates
-    const markers = new THREE.Group() // Group to hold marker meshes
-
-    // Iterate through the months os the year to increment positions array and add markers
-    yearData.forEach(d => {
-      const { x, y, z } = getCoordinates(d)
+  //   // Iterate through the months os the year to increment positions array and add markers
+  //   yearData.forEach(d => {
+  //     const { x, y, z } = getCoordinates(d)
       
-      positions.push(x, y, z) // Insert coordinates into the positions array
+  //     positions.push(x, y, z) // Insert coordinates into the positions array
 
-      const marker = makeMarkerMesh()
-      marker.position.set(x, y, z)
-      marker.userData = { year: year, month: d.date, data: d }
-      markers.add(marker)
-    })
+  //     const marker = makeMarkerMesh()
+  //     marker.position.set(x, y, z)
+  //     marker.userData = { year: year, month: d.date, data: d }
+  //     markers.add(marker)
+  //   })
 
-    // Create the line loop geometry and add it to the spiral
-    const line = makeSpiralLine(positions)
-    spiral.add(line, markers)
+  //   // Create the line loop geometry and add it to the spiral
+  //   const line = makeSpiralLine(positions)
+  //   spiral.add(line, markers)
 
-    // Add spiral to the scene
-    chart.current.add(spiral)
+  //   // Add spiral to the scene
+  //   chartRef.current.add(spiral)
 
-    // Store the spiral and markers in the refs
-    spiralsRef.current.set(String(year), <Spiral>spiral)
-    markersRef.current.push(markers)
+  //   // Store the spiral and markers in the refs
+  //   spiralsRef.current.set(String(year), <Spiral>spiral)
+  //   markersRef.current.push(markers)
 
-    return { spiral: <Spiral>spiral, markers: markers}
-  }, [])
-
-
-  const repositionSpirals = useCallback(() => {
-    spiralsRef.current.forEach((spiral, _) => {
-      const data = spiral.userData.data
-      const [ line, markers ] = spiral.children
-
-      // Update the line positions and markers' positions
-      const positionsAttr = line.geometry.getAttribute('position') as THREE.BufferAttribute
-
-      data.forEach((d: MonthCO2, i: number) => {
-        const { x, y, z } = getCoordinates(d)
-        markers.children[i].position.set(x, y, z)
-        positionsAttr.setXYZ(i, x, y, z)
-      })
+  //   return { spiral: <Spiral>spiral, markers: markers}
+  // }, [])
 
 
-      positionsAttr.needsUpdate = true
-    })
-  }, [])
+  // const repositionSpirals = useCallback(() => {
+  //   spiralsRef.current.forEach((spiral, _) => {
+  //     const data = spiral.userData.data
+  //     const [ line, markers ] = spiral.children
+
+  //     // Update the line positions and markers' positions
+  //     const positionsAttr = line.geometry.getAttribute('position') as THREE.BufferAttribute
+
+  //     data.forEach((d: MonthCO2, i: number) => {
+  //       const { x, y, z } = getCoordinates(d)
+  //       markers.children[i].position.set(x, y, z)
+  //       positionsAttr.setXYZ(i, x, y, z)
+  //     })
+
+
+  //     positionsAttr.needsUpdate = true
+  //   })
+  // }, [])
 
 
   const reposition = useCallback(() => {
@@ -138,57 +115,50 @@ export function useSpiralChart({ dataset, context, lengthScale, angleScale, conf
     // }
   }, [])
 
+  useEffect(() => {
+    context.add(chartRef.current)
+  }, [])
+
   
   useEffect(() => {
-    context.add(chart.current)
-    
-    // Create spirals for each year
-    // groupedData.forEach(yearData => {
-    //   makeSpiralMeshes(yearData.months)
-    // })
+    // Make Spiral Line
+    const linePositions: number[] = [] 
 
-    const positions: number[] = [] 
     dataset.interpolated.forEach(d => {
-      const angle = angleScale.current(d.monthDecimal)
-
-      const coordinates = { 
-        x: Math.cos(angle!) * CHART_CONFIG.radius, 
-        z: Math.sin(angle!) * CHART_CONFIG.radius,
-        y: lengthScale.current(d.ppm), 
-      }
-
-      positions.push(coordinates.x, coordinates.y, coordinates.z)
+      const { x, y, z } = getRadialCoordinates(d, d => d.monthDecimal)
+      linePositions.push(x, y, z)
     })
 
+    // Create the line geometry and add it to the spiral
+    const line = new THREE.Line(makeBufferGeometry(linePositions), SPIRAL_MATERIAL)
 
-    // Create the line loop geometry and add it to the spiral
-    const line = makeSpiralLine(positions)
+    // Make Markers
+    const markers = new THREE.Group()
+    dataset.monthly.forEach(d => {
+      const { x, y, z } = getRadialCoordinates(d, d => d.month)
+      const marker = makeMarker()
+      marker.position.set(x, y, z)
+      markers.add(marker)
+    })
 
-    chart.current.add(line)
-
-
-
-    // groupedData.forEach(yearData => {
-    //   makeSpiralMeshes(yearData.months)
-    // })
-
-
+    // Add line and markers
+    chartRef.current.add(line, markers)
 
     // Clean up function to remove spirals from the scene
     return () => {
-      spiralsRef.current.forEach((spiral) => {
-        context.remove(spiral)
-        const [ line, markers ] = spiral.children
-        line.geometry.dispose()
-        markers.children.forEach(child => {
-          if (child instanceof THREE.Mesh) 
-            child.geometry.dispose()
-        })
-      })
+      line.geometry.dispose()
+
+      for (let i = markers.children.length - 1; i >= 0; i--) {
+        const child = markers.children[i]
+        if (child instanceof THREE.Mesh) 
+          child.geometry.dispose()
+      }
+      
+      chartRef.current.remove(line, markers)
     }
   
-  }, [])
+  }, [ dataset ])
 
-  return { ref: chart, reposition, update }
+  return { ref: chartRef, reposition, update }
 
 }
