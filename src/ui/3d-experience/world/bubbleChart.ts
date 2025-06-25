@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import * as d3 from "d3"
 import { UseCamera } from '../camera';
 import { UseSizes } from '../utils/sizes';
-import { useAppState, useAppStateDispatch } from '@/ui/context/context';
+import { useAppState, useAppStateDispatch } from '@/ui/context/appStateContext';
 import { SpiralConfig } from '@/lib/config/spiral';
 
 

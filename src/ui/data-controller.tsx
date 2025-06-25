@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Dataset, MasterDataset } from "@/data/definitions";
 import { Experience } from "@/ui/3d-experience/experience";
 import { Controllers } from "@/ui/controllers/controllers";
-import { useAppState, useAppStateDispatch } from "@/ui/context/context";
+import { useAppState, useAppStateDispatch } from "@/ui/context/appStateContext";
 
 
 export function DataController({ master }: { master: MasterDataset }) {

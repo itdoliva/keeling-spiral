@@ -2,6 +2,7 @@ import { useMemo, useEffect } from 'react';
 import * as THREE from 'three'
 import { rgbeLoader } from '@/lib/loaders';
 import ATMSampleSphere from './ATMSampleSphere';
+import { useAssets } from '@/ui/context/assetsContext';
 
 interface Node {
   idx: number;
@@ -21,13 +22,12 @@ export function useATMSample({ ppmExtent, ppmCurrent }: {
     return new ATMSampleSphere(ppmExtent, ppmCurrent)
   }, [])
 
+  const assets = useAssets()
+
   useEffect(() => {
-    rgbeLoader.load('/environment-maps/envmap.hdr', (envMap) => {
-      envMap.mapping = THREE.EquirectangularReflectionMapping
-      envMap.colorSpace = THREE.SRGBColorSpace
-      sphere.bubble.material.envMap = envMap
-    })
-  }, [])
+    if (!assets) return
+    sphere.bubble.material.envMap = assets.cylinder.envMap
+  }, [ assets ])
 
   useEffect(() => {
     sphere.ppmExtent = ppmExtent

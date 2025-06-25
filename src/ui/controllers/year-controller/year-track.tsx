@@ -1,4 +1,4 @@
-import { useAppState, useAppStateDispatch } from "@/ui/context/context";
+import { useAppState, useAppStateDispatch } from "@/ui/context/appStateContext";
 import { YearControllerConfig } from '@/lib/config/layout';
 import * as d3 from "d3";
 import { useRef, useEffect, useCallback } from "react";

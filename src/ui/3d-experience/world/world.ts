@@ -9,7 +9,7 @@ import { UseDebug } from "../utils/debug";
 import { UseCamera } from "../camera";
 import { UseSizes } from "../utils/sizes";
 import { usePPMAxis } from "./ppmAxis";
-import { useAppState } from "@/ui/context/context";
+import { useAppState } from "@/ui/context/appStateContext";
 import { SpiralConfig } from '@/lib/config/spiral';
 import { useATMSample } from "@/ui/3d-experience/world/atm-sample/atmSample";
 import { useSpiral } from "./spiral-chart/spiral";
