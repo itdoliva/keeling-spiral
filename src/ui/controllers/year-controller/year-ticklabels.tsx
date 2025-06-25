@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react"
 import * as d3 from "d3"
 import { YearTick } from "./year-controller"
-import { formatDecade } from "@/app/lib/helpers";
+import { formatDecade } from "@/lib/helpers";
 
 export function YearTicklabels({ ticks, xScaleRef, resizeEmitter }: {
   ticks: YearTick[];

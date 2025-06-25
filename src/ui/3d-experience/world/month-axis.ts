@@ -2,7 +2,7 @@ import { useEffect, useCallback } from 'react';
 import * as THREE from 'three'
 import * as d3 from 'd3'
 import gsap from 'gsap';
-import { MONTH_LABELS } from '@/app/lib/config';
+import { MONTH_LABELS } from '@/lib/constants';
 import { UseCamera } from '@/ui/3d-experience/camera';
 import { UseSizes } from '@/ui/3d-experience/utils/sizes';
 

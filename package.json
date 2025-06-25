@@ -17,7 +17,8 @@
     "postgres": "^3.4.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "three": "^0.176.0"
+    "three": "^0.176.0",
+    "webpack-glsl-loader": "^1.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

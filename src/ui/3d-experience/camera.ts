@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback, RefObject } from 'react'
-import { CAMERA } from '@/app/lib/config';
+import { CameraConfig, ControlsConfig } from '@/lib/config/layout';
 
 import * as THREE from 'three'
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -22,15 +22,15 @@ export function useCamera({ scene, canvasRef, debug }: {
 
   // Setup
   useEffect(() => {
-    camera.current.position.copy(CAMERA.position)
-    camera.current.lookAt(CAMERA.lookAt)
+    camera.current.position.copy(CameraConfig.position)
+    camera.current.lookAt(CameraConfig.lookAt)
     camera.current.updateProjectionMatrix()
     scene.add(camera.current)
     
     if (canvasRef.current instanceof HTMLCanvasElement && debug.ref.current.active) {
       controls.current = new OrbitControls(camera.current, canvasRef.current)
       controls.current.enableDamping = true
-      controls.current.target.set(0, 2, 0)
+      controls.current.target.copy(ControlsConfig.target)
     }
 
   }, [ canvasRef ])

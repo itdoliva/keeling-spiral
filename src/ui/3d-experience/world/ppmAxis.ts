@@ -1,12 +1,11 @@
 import * as THREE from 'three'
 import * as d3 from "d3"
-import { makeBufferGeometry } from '@/app/lib/helpers';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { ChartConfig } from '@/data/definitions';
+import { makeBufferGeometry } from '@/lib/helpers';
+import { useCallback, useEffect, useMemo } from 'react';
 import { UseCamera } from '../camera';
 import { UseSizes } from '../utils/sizes';
 
-import { TICK_SIZES, AXIS_OFFSET, AXIS_MATERIAL } from '@/app/lib/config';
+import { PPMAxisConfig, createPPMAxisLine } from '@/lib/config/ppmAxis';
 
 type TickType = 'minor' | 'major' | 'half';
 
@@ -17,19 +16,18 @@ interface Tick {
 }
 
 
-export function usePPMAxis({ context, ppmScale, config, camera, sizes }: {
-  context: THREE.Object3D;
-  config: ChartConfig;
+export function usePPMAxis({ ppmScale, camera, sizes }: {
   ppmScale: d3.ScaleLinear<number, number>;
   camera: UseCamera;
   sizes: UseSizes;
 }) {
 
-  const axisRef = useRef(new THREE.Group())
+  const axis = useMemo(() => new THREE.Group(), [])
 
   const ticks = useMemo(() => {
     const [ minTick, maxTick ] = ppmScale.domain()
     const tickValues = d3.range(minTick, maxTick + 1, 1)
+
     return tickValues.map((value: number) => {
       let type: TickType
 
@@ -53,15 +51,17 @@ export function usePPMAxis({ context, ppmScale, config, camera, sizes }: {
   useEffect(() => {
     // Domain
     const domainPositions = ppmScale.range().flatMap(d => [ 0, d, 0 ])
-    const domainLine = new THREE.Line(makeBufferGeometry(domainPositions), AXIS_MATERIAL)
+    const geometry = makeBufferGeometry(domainPositions)
+    const domainLine = createPPMAxisLine(geometry)
 
     // Tick lines
     const tickLines = ticks.map(({ coordinate, type }) => {
-      const tickPositions = [ coordinate, coordinate.clone().add(TICK_SIZES[type]) ]
-      return new THREE.Line(makeBufferGeometry(tickPositions), AXIS_MATERIAL)
+      const tickPositions = [ coordinate, coordinate.clone().add(PPMAxisConfig.tickSizes[type]) ]
+      const geometry = makeBufferGeometry(tickPositions)
+      return createPPMAxisLine(geometry)
     })
 
-    axisRef.current.add(domainLine, ...tickLines)
+    axis.add(domainLine, ...tickLines)
 
     // Tick labels (HTML)
     d3.select('body').select('.label-layer')
@@ -77,12 +77,12 @@ export function usePPMAxis({ context, ppmScale, config, camera, sizes }: {
 
     return () => {
       // Clean up
-      for (let i = axisRef.current.children.length - 1; i >= 0; i--) {
-        const child = axisRef.current.children[i]
+      for (let i = axis.children.length - 1; i >= 0; i--) {
+        const child = axis.children[i]
         if (child instanceof THREE.Line) {
           child.geometry.dispose()
         }
-        axisRef.current.remove(child)
+        axis.remove(child)
       }
       
     }
@@ -90,15 +90,19 @@ export function usePPMAxis({ context, ppmScale, config, camera, sizes }: {
 
 
   const update = useCallback(() => {
-    const axisPosition = axisRef.current.position.clone()
+    const axisPosition = axis.position.clone()
 
     d3.selectAll<HTMLDivElement, Tick>('.ppm-ticklabel')
       .style('transform', ({ coordinate, type }) => {
 
         const screenPosition = coordinate.clone()
-        screenPosition.add(TICK_SIZES[type]) // Offset to the left
+        screenPosition.add(PPMAxisConfig.tickSizes[type]) // Offset to the left
         screenPosition.add(axisPosition)
-        screenPosition.add(context.position)
+
+        if (axis.parent) {
+          screenPosition.add(axis.parent.position)
+        }
+        
         screenPosition.project(<THREE.PerspectiveCamera>(camera.ref.current))
 
         const translateX = screenPosition.x * sizes.ref.current.width * 0.5
@@ -109,11 +113,9 @@ export function usePPMAxis({ context, ppmScale, config, camera, sizes }: {
   }, [])
 
   useEffect(() => {
-    context.add(axisRef.current)
-    axisRef.current.position.copy(new THREE.Vector3(-(config.radius + AXIS_OFFSET), 0, 0))
     update()
   }, [])
 
-  return { update }
+  return { object: axis, update }
 
 }

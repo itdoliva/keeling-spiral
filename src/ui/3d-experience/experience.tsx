@@ -1,4 +1,6 @@
-import { useRef, useEffect, useCallback } from 'react'
+import '@/lib/clock'
+
+import { useRef, useMemo, useEffect, useCallback } from 'react'
 import * as THREE from 'three'
 import { useSizes } from './utils/sizes'
 import { useCamera } from './camera';
@@ -13,7 +15,7 @@ import { Dataset } from '@/data/definitions';
 export function Experience({ dataset }: { dataset: Dataset }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
-  const sceneRef = useRef(new THREE.Scene())
+  const scene = useMemo(() => new THREE.Scene(), [])
 
   // Utils
   const sizes = useSizes()
@@ -21,9 +23,9 @@ export function Experience({ dataset }: { dataset: Dataset }) {
   const debug = useDebug()
 
   const renderer = useRenderer({ canvasRef, debug })
-  const camera = useCamera({ canvasRef, scene: sceneRef.current, debug })
+  const camera = useCamera({ canvasRef, scene, debug })
 
-  const world = useWorld({ dataset, camera, sizes, scene: sceneRef.current, debug })
+  const world = useWorld({ dataset, camera, sizes, scene, debug })
 
   const onResize = useCallback(() => {
     camera.resize(sizes.ref.current)
@@ -35,7 +37,7 @@ export function Experience({ dataset }: { dataset: Dataset }) {
     camera.update()
 
     if (camera.ref.current instanceof THREE.PerspectiveCamera) {
-      renderer.update(sceneRef.current, camera.ref.current)
+      renderer.update(scene, camera.ref.current)
     }
 
   }, [])

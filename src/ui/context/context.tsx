@@ -1,21 +1,12 @@
-import { MeasureLocation, MasterDataset, Dataset } from '@/data/definitions';
+import { MasterDataset, Dataset } from '@/data/definitions';
 import { createContext, useContext, useReducer } from 'react';
-
-export interface AppState {
-  location: MeasureLocation;
-  selectedYear: number;
-  hoveredYear: number | null;
-}
+import { Actions, AppState } from './definitions';
 
 const initialAppState = {
   location: 'MLO',
   selectedYear: 1980,
   hoveredYear: null,
 } as AppState
-
-type YearAction = { type: 'select' | 'hover', year: any }
-type LocationAction = { type: 'locationToggle' }
-export type Actions = YearAction | LocationAction
 
 const AppStateContext = createContext(initialAppState)
 const AppStateDispatchContext = createContext<React.Dispatch<Actions> | undefined>(undefined);

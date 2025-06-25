@@ -1,5 +1,5 @@
-import { useAppState, useAppStateDispatch } from "@/ui/context";
-import { YEAR_CONTROLLER } from "@/app/lib/config";
+import { useAppState, useAppStateDispatch } from "@/ui/context/context";
+import { YearControllerConfig } from '@/lib/config/layout';
 import * as d3 from "d3";
 import { useRef, useEffect, useCallback } from "react";
 import { YearTick } from "./year-controller";
@@ -191,8 +191,8 @@ export function YearTrack({ ticks, xScaleRef, resizeEmitter }: {
       axis.select('.domain')
         .attr('x', 0)
         .attr('width', width)
-        .attr('y', -YEAR_CONTROLLER.domain.height/2)
-        .attr('height', YEAR_CONTROLLER.domain.height)
+        .attr('y', -YearControllerConfig.domain.height/2)
+        .attr('height', YearControllerConfig.domain.height)
 
       svg.select('.ticks').selectAll<SVGCircleElement, YearTick>('.tick')
         .attr('transform', d => `translate(${xScaleRef.current(d.year) ?? 0}, 0)`)
@@ -219,7 +219,7 @@ export function YearTrack({ ticks, xScaleRef, resizeEmitter }: {
           </g>
         </g>
         <g className="thumb-wrapper group">
-          <rect rx="3" x="-5" width="10" y={-YEAR_CONTROLLER.domain.height / 2} height={YEAR_CONTROLLER.domain.height} className="fill-transparent" />
+          <rect rx="3" x="-5" width="10" y={-YearControllerConfig.domain.height / 2} height={YearControllerConfig.domain.height} className="fill-transparent" />
           <rect rx="3" x="-5" width="10" y="-10" height="20" className="fill-[#747474] stroke-1 stroke-[#1c1c1c] group-hover:scale-105" />
         </g>
       </g>

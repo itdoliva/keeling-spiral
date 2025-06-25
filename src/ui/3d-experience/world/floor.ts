@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { UseDebug } from '../utils/debug'
 import { useEffect, useRef } from 'react'
-import { handleColorChange } from '@/app/lib/helpers'
+import { handleColorChange } from '@/lib/helpers'
 
 const floorConfig = {
   color: 0x747474,

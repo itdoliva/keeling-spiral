@@ -1,8 +1,8 @@
 'use client'
 
-import { MasterDataset, Dataset } from "@/data/definitions";
+import { MasterDataset } from "@/data/definitions";
 import { DataController } from "./data-controller";
-import { AppStateProvider } from "./context";
+import { AppStateProvider } from "./context/context";
 
 
 

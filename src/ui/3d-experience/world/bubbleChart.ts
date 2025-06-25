@@ -4,8 +4,8 @@ import * as THREE from 'three';
 import * as d3 from "d3"
 import { UseCamera } from '../camera';
 import { UseSizes } from '../utils/sizes';
-import { useAppState, useAppStateDispatch } from '@/ui/context';
-import { CHART_CONFIG, AXIS_OFFSET } from '@/app/lib/config'
+import { useAppState, useAppStateDispatch } from '@/ui/context/context';
+import { SpiralConfig } from '@/lib/config/spiral';
 
 
 // --- Types ---
@@ -80,7 +80,7 @@ export function useBubbleChart({ groupedData, context, lengthScale, camera, size
     // Create spirals for each year
     groupedData.forEach((d) => {
       const marker = makeMarkerMesh()
-      marker.position.set(-(CHART_CONFIG.radius + AXIS_OFFSET), 0, 0)
+      marker.position.set(-(SpiralConfig.radius + SpiralConfig.offset), 0, 0)
       marker.userData = d
       positionMarker(marker)
       marker.visible = false

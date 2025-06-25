@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 
+export const toFloat = (value: number) => value * 1.000001
+
 export const handleColorChange = (color: THREE.Color) => {
   return (hex: number) => {
     color.setHex(hex)
