@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import * as d3 from 'd3'
 import { RefObject, useEffect, useRef, useCallback } from 'react';
-import { ChartConfig, YearCO2 } from '@/data/definitions'
+import { ChartConfig, YearCO2 } from '@/types/data'
 import { useAppState } from '@/ui/context/appStateContext';
 import { UseCamera } from '@/ui/3d-experience/camera';
 import { UseSizes } from '@/ui/3d-experience/utils/sizes';

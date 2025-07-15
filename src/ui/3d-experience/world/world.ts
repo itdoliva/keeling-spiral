@@ -4,16 +4,18 @@ import * as d3 from "d3"
 import gsap from "gsap";
 
 import { useDrag } from '@/ui/3d-experience/utils/drag'; 
-import { Dataset } from "@/data/definitions";
+import { AnnualDatum, Dataset } from "@/types/data";
 import { UseDebug } from "../utils/debug";
 import { UseCamera } from "../camera";
 import { UseSizes } from "../utils/sizes";
 import { usePPMAxis } from "./ppmAxis";
 import { useAppState } from "@/ui/context/appStateContext";
-import { SpiralConfig } from '@/lib/config/spiral';
+import { SpiralConfig } from '@/config/three';
 import { useATMSample } from "@/ui/3d-experience/world/atm-sample/atmSample";
 import { useSpiral } from "./spiral-chart/spiral";
 import * as lighting from '@/ui/3d-experience/world/environment/lighting'
+import Indicator from "@/ui/3d-experience/world/indicator/Indicator";
+import { useAssets } from "@/ui/context/assetsContext";
 
 
 const monthScale = d3.scaleLinear()
@@ -31,6 +33,7 @@ export function useWorld({ dataset, scene, camera, sizes, debug }: {
 }) {
   
   const state = useAppState()
+  const assets = useAssets()
   
   const [ minPPM, maxPPM ] = d3.extent(dataset.monthly, d => d.ppm) as number[]
 
@@ -59,15 +62,30 @@ export function useWorld({ dataset, scene, camera, sizes, debug }: {
   
   const figure = useMemo(() => new THREE.Group(), [])
   const chart = useMemo(() => new THREE.Group(), [])
+  const indicator = useMemo(() => new Indicator(), [])
   
   const ppmAxis = usePPMAxis({ ppmScale, camera, sizes })
-
   const spiral = useSpiral({ dataset, getRadialCoordinates })
 
+  const yearData = dataset.annual.find(d => d.year === state.selectedYear) as AnnualDatum
+
   const ppmExtent = d3.extent(dataset.annual, d => d.ppm) as [ number, number ]
-  const ppmCurrent = dataset.annual.find(d => d.year === state.selectedYear)!.ppm
+  const ppmCurrent = yearData.ppm
+
 
   const atmSample = useATMSample({ ppmExtent: ppmExtent, ppmCurrent: ppmCurrent })
+
+  const y = ppmScale(yearData.ppm)
+
+  gsap.to(figure.position, {
+    y: -y + 1.5,
+    ease: 'power3.out',
+    duration: .750,
+    overwrite: true,
+    onUpdate: () => figure.updateMatrixWorld(true)
+  })
+
+  indicator.moveTo(y)
 
   // Setup
   useEffect(() => {
@@ -81,7 +99,7 @@ export function useWorld({ dataset, scene, camera, sizes, debug }: {
     
     /* Nest objects */
     chart.add(spiral.object)
-    figure.add(ppmAxis.object, chart)
+    figure.add(ppmAxis.object, chart, indicator.object)
     scene.add(figure, atmSample.object, lighting.ambientLight, lighting.directionalLight, lighting.pointLight)
 
     /* Add drag callback */
@@ -120,28 +138,16 @@ export function useWorld({ dataset, scene, camera, sizes, debug }: {
 
   }, [])
 
-  
+  useEffect(() => {
+    if (!assets) return
+    indicator.object.material.matcap = assets.indicator.matCap
+  }, [ assets ])
 
   const update = useCallback(() => {
     ppmAxis.update()
     atmSample.update()
   }, []) //yearBubbles
 
-  useEffect(() => {
-    const yearData = dataset.annual.find(d => d.year === state.selectedYear)
-    if (!yearData) return
-
-    const y = ppmScale(yearData.ppm)
-
-    gsap.to(figure.position, {
-      y: -y + 1.5,
-      ease: 'power3.out',
-      duration: .750,
-      overwrite: true,
-      onUpdate: () => figure.updateMatrixWorld(true)
-    })
-
-  }, [ ppmScale, state.selectedYear ])
 
 
   return { 

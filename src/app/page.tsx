@@ -1,18 +1,35 @@
+'use client'
 
-import "@/css/global.css"
-import { MasterDataset } from "@/data/definitions";
-import { App } from "@/ui/app";
+import useFetch from "@/hooks/useFetch";
+import useAppState from "@/hooks/useAppState"
+import YearController from "@/features/year-controller/year-controller";
+import { fetchData } from "@/data/fetch";
+
+import { MasterDataset, Dataset } from "@/types/data";
+import { YearControllerConfig } from "@/config/layout";
 
 
-export default async function Home() {
-  const master: MasterDataset = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/get-data`, {
-    cache: 'no-store',
-  })
-  .then((res) => res.json())
-  .then((data) => new Map(data))
+export default function Home() {
+  const { data, error, isLoading } = useFetch<MasterDataset>(fetchData)
+  const { appState, appStateDispatch } = useAppState()
 
+  if (error) return <h1>Error!</h1>
+  if (isLoading) return <div>Loading...</div>
+
+  const dataset = (data as MasterDataset).get(appState.location) as Dataset
+  const years = dataset.annual.map(d => d.year)
 
   return (
-    <App master={master} />
+    <main>
+      <div className="label-layer"></div>
+      <YearController 
+        years={years}
+        config={YearControllerConfig}
+        selectedYear={appState.selectedYear} 
+        hoveredYear={appState.hoveredYear} 
+        dispatch={appStateDispatch}
+      />
+      {/* <Experience dataset={data} /> */}
+    </main>
   );
 }

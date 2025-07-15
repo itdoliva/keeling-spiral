@@ -1,10 +1,9 @@
-import * as THREE from 'three';
 
 export const PPMAxisConfig = {
   tickSizes: {
-    major: new THREE.Vector3(-.3, 0, 0),
-    half: new THREE.Vector3(-.125, 0, 0),
-    minor: new THREE.Vector3(-.05, 0, 0)
+    major: 0.3,
+    half: 0.125,
+    minor: 0.05,
   }
 }
 

@@ -1,4 +1,4 @@
-import { MonthCO2 } from "@/data/definitions";
+import { MonthCO2 } from "@/types/data";
 
 export function SpiralChart({ data }: { data: MonthCO2[] }) {
 

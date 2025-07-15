@@ -1,8 +1,9 @@
-import { Dataset, InterpolatedDatum, MonthlyDatum } from '@/data/definitions';
+import { Dataset, InterpolatedDatum, MonthlyDatum } from '@/types/data';
 import { useEffect, useRef, useCallback, useMemo } from 'react';
 import * as THREE from 'three';
 import { makeBufferGeometry } from '@/lib/helpers';
-import { createSpiralMarker, createSpiralLine } from '@/lib/config/spiral';
+import { createSpiralMarker } from '@/features/spiral/utils';
+import { createSpiralLine } from '@/features/spiral/utils';
 
 
 

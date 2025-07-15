@@ -1,6 +1,6 @@
 import postgres from 'postgres';
 import { parseAnnualData, parseMonthlyData, parseInterpolatedData } from '@/data/parsers'
-import { MeasureLocation } from '@/data/definitions';
+import { MeasureLocation } from '@/types/data';
 
 const sql = postgres(<string>process.env.DB_URL, 
   { 
@@ -71,7 +71,6 @@ export async function GET() {
     return Response.json(data, { status: 200 })
   }
   catch (error) {
-    console.error('Error fetching data:', error)
     return Response.json({ error: 'Failed to fetch data' }, { status: 500 })
   }
 }

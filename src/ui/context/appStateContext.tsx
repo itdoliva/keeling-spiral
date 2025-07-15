@@ -1,6 +1,7 @@
-import { MasterDataset, Dataset } from '@/data/definitions';
+import { MasterDataset, Dataset } from '@/types/data';
 import { createContext, useContext, useReducer } from 'react';
-import { Actions, AppState } from './definitions';
+import { Actions } from "@/types/store";
+import { AppState } from '@/types/store';
 
 const initialAppState = {
   location: 'MLO',

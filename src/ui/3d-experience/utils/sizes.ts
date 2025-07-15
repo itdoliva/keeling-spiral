@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback, RefObject } from 'react'
-import { useEventEmitter } from '../../utils/events'
+import { useEventEmitter } from '../../../hooks/useEmitter'
 
 export interface Sizes {
   width: number;
