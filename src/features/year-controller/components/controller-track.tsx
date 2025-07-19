@@ -5,7 +5,7 @@ import { ReducerAction } from "@/types/store"
 import cn from "@/utils/cn"
 
 import { YearTick, Scale, Coordinates, PointerEvent } from '@/features/year-controller/types'
-import useDragHandler from "@/features/year-controller/hooks/useDragHandler"
+import useDragHandler from "@/features/year-controller/hooks/use-drag-handler"
 
 import Track from "@/features/year-controller/components/track/track"
 import TrackBase from "@/features/year-controller/components/track/track-base"

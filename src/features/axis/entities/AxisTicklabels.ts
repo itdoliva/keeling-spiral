@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import * as THREE from 'three'
-import Sizes from '@/features/experience/utils/Sizes';
+import Sizes from '@/features/experience/entities/Sizes';
 import { Tick } from "@/features/axis/types";
 
 export default class AxisTicklabels {

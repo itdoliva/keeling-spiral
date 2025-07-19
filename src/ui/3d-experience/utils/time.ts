@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
-import { useEventEmitter } from "../../../hooks/useEmitter"
+import { useEventEmitter } from "../../../hooks/use-emitter"
 
 export interface UseTime {
   elapsed: number;

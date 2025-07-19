@@ -1,10 +1,10 @@
-import { EventEmitter } from "@/features/event-emitter/EventEmitter"
+import EventEmitter from "@/features/event-emitter/entities/EventEmitter"
 
-export default class Time extends EventEmitter {
+export default class Time extends EventEmitter<Time> {
   private start: number
   private current: number
-  private elapsed: number
-  private delta: number
+  public elapsed: number
+  public delta: number
 
   private animationFrameId: number | null = null 
 
@@ -29,7 +29,7 @@ export default class Time extends EventEmitter {
     this.elapsed = now - this.start
     this.current = now
 
-    this.trigger()
+    this.trigger(this)
 
     this.animationFrameId = window.requestAnimationFrame(() =>{
       this.tick()

@@ -5,7 +5,7 @@ import { ReducerAction } from '@/types/store';
 
 import YearControllerTrack from '@/features/year-controller/components/controller-track';
 import YearTicklabels from '@/features/year-controller/components/controller-ticklabels';
-import useElementResize from '@/features/year-controller/hooks/useElementResize';
+import useElementResize from '@/features/year-controller/hooks/use-element-resize';
 import makeTick from '@/features/year-controller/utils/makeTick';
 
 type YearControllerProps = {

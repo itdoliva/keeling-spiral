@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import * as d3 from "d3"
 import gsap from "gsap";
 
-import { useDrag } from '@/ui/3d-experience/utils/drag'; 
+import { useDrag } from '@/hooks/use-drag'; 
 import { AnnualDatum, Dataset } from "@/types/data";
 import { UseDebug } from "../utils/debug";
 import { UseCamera } from "../camera";

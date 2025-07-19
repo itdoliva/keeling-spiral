@@ -29,6 +29,17 @@ export const AxisConfig = {
   }
 }
 
+export const IndicatorConfig = {
+  geometry: {
+    radius: .075, 
+    widthSegments: 16, 
+    heightSegments: 16
+  },
+  material: {
+    color: 0x1c1c1c
+  }
+}
+
 export const AtmSampleConfig = {
   radius: .16,
   size: 12,

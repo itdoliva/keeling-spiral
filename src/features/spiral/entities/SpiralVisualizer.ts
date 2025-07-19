@@ -1,7 +1,8 @@
 import * as THREE from 'three'
 import { makeBufferGeometry } from '@/lib/helpers';
-import { TransformedDataset } from "@/types/data";
+import { MonthlyDatum, TransformedDatum, TransformedDataset } from "@/types/data";
 import { createSpiralLine, createSpiralMarker } from '@/features/spiral/utils';
+import { ObjectVisualizer } from '@/types/three';
 
 const createLine = (positions: number[]): THREE.Line => {
   const geometry = makeBufferGeometry(positions);
@@ -12,28 +13,29 @@ const createMarker = (): THREE.Mesh => {
   return createSpiralMarker()
 }
 
-export default class SpiralVisualizer {
-  private object: THREE.Group
+export default class SpiralVisualizer implements ObjectVisualizer {
+  private spiral: THREE.Group
   private line: THREE.Line
   private markers: THREE.Mesh[]
 
   constructor(dataset: TransformedDataset) {
-    const linePositions = dataset.monthly.flatMap(({ coordinate }) => {
+    const linePositions = dataset.interpolated.flatMap(({ coordinate }) => {
       return [ coordinate.x, coordinate.y, coordinate.z ]
     })
 
     this.line = createLine(linePositions)
+
     this.markers = dataset.monthly.map(({ coordinate }) => {
       const marker = createMarker()
       marker.position.copy(coordinate)
       return marker
     })
 
-    this.object = new THREE.Group()
-    this.object.add(this.line, ...this.markers)
+    this.spiral = new THREE.Group()
+    this.spiral.add(this.line, ...this.markers)
   }
 
-  public update() {
+  public render() {
     // Update logic
   }
 
@@ -48,10 +50,19 @@ export default class SpiralVisualizer {
       this.markers[i].geometry.dispose()
     }
 
-    this.object.remove(this.line, ...this.markers)
+    this.spiral.remove(this.line, ...this.markers)
+    this.spiral.removeFromParent()
   }
 
   public getObject() {
-    return this.object
+    return this.spiral
+  }
+
+  get position() {
+    return this.spiral.position
+  }
+
+  get rotation() {
+    return this.spiral.rotation
   }
 }

@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import Sizes from "@/features/experience/utils/Sizes"
+import Sizes from "@/features/experience/entities/Sizes"
 
 export default class Renderer {
   private renderer: THREE.WebGLRenderer
@@ -18,7 +18,11 @@ export default class Renderer {
     this.renderer.setPixelRatio(sizes.pixelRatio)
   }
 
-  public update(scene: THREE.Scene, camera: THREE.Camera) {
+  public render(scene: THREE.Scene, camera: THREE.Camera) {
     this.renderer.render(scene, camera)
+  }
+
+  public dispose() {
+    this.renderer.dispose()
   }
 }

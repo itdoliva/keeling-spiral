@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { Coordinates, PointerEvent } from '../types'
-import useStableProps from '@/hooks/useStableProps'
+import useStableProps from '@/hooks/use-stable-props'
 
 type UseDragHandlerOptions = {
   extractCoordinates: (event: PointerEvent) => Coordinates

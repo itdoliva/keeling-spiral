@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-import { useInertialEmitter } from "../../../hooks/useEmitter";
+import { useInertialEmitter } from "./use-emitter";
 
 
 function getPointerCoordinates(e: MouseEvent | TouchEvent): [number, number] {
