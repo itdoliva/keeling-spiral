@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react"
 import * as THREE from 'three'
+import * as d3 from 'd3'
 
 import ExperienceManager from "@/features/experience/entities/ExperienceManager";
 import Group from "@/features/experience/entities/Group";
@@ -10,6 +11,7 @@ import Axis from "@/features/axis/entities/Axis";
 import { ppmScale } from "@/lib/scale";
 import { SpiralConfig } from "@/config/three";
 import Indicator from "@/features/indicator/entities/Indicator";
+import { makePPMTicks } from "@/features/axis/utils";
 
 type Experience = {
   manager: ExperienceManager,
@@ -34,16 +36,17 @@ export default function useExperience(
   
       const figure = new Group()
       const spiral = new SpiralVisualizer(dataset)
-      const axis = new Axis(ppmScale, layerRef.current)
+
+      const ppmAxis = new Axis(makePPMTicks(ppmScale), layerRef.current)
       const indicator = new Indicator()
 
-      axis.position.copy(new THREE.Vector3(-(config.radius + config.offset), 0, 0))
+      ppmAxis.position.copy(new THREE.Vector3(-(config.radius + config.offset), 0, 0))
   
-      figure.add(spiral, axis, indicator)
+      figure.add(spiral, ppmAxis, indicator)
   
       experienceManager.addObject(figure)
       experienceManager.addLoopCallback((time, { camera, sizes }) => {
-        axis.tick(camera, sizes)
+        ppmAxis.tick(camera, sizes)
       })
   
       experienceRef.current = { 

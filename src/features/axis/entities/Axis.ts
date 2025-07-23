@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import * as d3 from 'd3'
 import AxisTicklabels from '@/features/axis/entities/AxisTicklabels';
 import AxisVisualizer from '@/features/axis/entities/AxisVisualizer';
-import { makeTick } from '@/features/axis/utils';
 import { Tick } from '@/features/axis/types';
 import { PPMScale } from '@/types/scale'
 import Sizes from '@/features/experience/entities/Sizes';
@@ -13,12 +12,8 @@ export default class Axis implements ObjectVisualizer {
   private ticklabels: AxisTicklabels
   private visualizer: AxisVisualizer
 
-  constructor(scale: PPMScale, htmlNode: HTMLElement) {
-    const [ minTick, maxTick ] = scale.domain()
-    const tickValues = d3.range(minTick, maxTick + 1, 1)
-    
-    this.ticks = tickValues.map(value => makeTick(value, scale))
-
+  constructor(ticks: Tick[], htmlNode: HTMLElement) {
+    this.ticks = ticks
     this.ticklabels = new AxisTicklabels(this.ticks, htmlNode)
     this.visualizer = new AxisVisualizer(this.ticks)
   }

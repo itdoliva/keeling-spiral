@@ -2,41 +2,33 @@ import * as THREE from 'three'
 import * as d3 from "d3"
 import { createLine } from '@/features/axis/utils'
 import { Tick } from '@/features/axis/types'
+import gsap from 'gsap'
+import Group from '@/features/experience/entities/Group'
+import Line from './Line'
 
 
-export default class AxisVisualizer {
-  private object: THREE.Group
-  private domain: THREE.Line
-  private ticks: THREE.Line[]
+export default class AxisVisualizer extends Group {
+  private domain: Line
+  private ticks: Line[]
 
   constructor(ticks: Tick[]) {
+    super()
     const domainExtent = d3.extent(ticks, d => d.height) as number[]
 
-    this.domain = createLine(domainExtent.map(d => new THREE.Vector3(0, d, 0)))
-    this.ticks = ticks.map(d => createLine(d.points))
-    this.object = new THREE.Group()
-    this.object.add(this.domain, ...this.ticks)
-  }
+    console.log(domainExtent)
+    this.domain = new Line(domainExtent.map(d => new THREE.Vector3(0, d, 0)))
+    this.ticks = ticks.map(d => new Line(d.points))
 
-  public getObject() {
-    return this.object
+    this.add(this.domain, ...this.ticks)
   }
 
   public tick() {
     // 
   }
 
-  public dispose() {
-    for (let i = this.object.children.length - 1; i >= 0; i--) {
-      const child = this.object.children[i] as THREE.Line
-      child.geometry.dispose()
-      this.object.remove(child)
-    }
-  }
-
   public getWorldPosition() {
     const axisPosition = new THREE.Vector3()
-    this.object.getWorldPosition(axisPosition)
+    this.getObject().getWorldPosition(axisPosition)
     return axisPosition
   }
 }

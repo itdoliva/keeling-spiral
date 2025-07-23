@@ -1,23 +1,23 @@
 import * as THREE from 'three'
-import { ObjectVisualizer } from "@/types/three";
+import { Object3D, ObjectVisualizer } from "@/types/three";
 
 export default class Group implements ObjectVisualizer {
   private group: THREE.Group
-  private children: ObjectVisualizer[]
+  private children: Object3D[]
 
   constructor() {
     this.group = new THREE.Group()
     this.children = []
   }
 
-  public add(...objects: ObjectVisualizer[]) {
+  public add(...objects: Object3D[]) {
     for (const object of objects) {
       this.children.push(object)
       this.group.add(object.getObject())
     }
   }
 
-  public remove(...objects: ObjectVisualizer[]) {
+  public remove(...objects: Object3D[]) {
     for (const object of objects) {
       const idx = this.children.indexOf(object)
       if (idx >= 0) this.children.splice(idx, 1)
