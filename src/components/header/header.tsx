@@ -5,7 +5,7 @@ export default function Header() {
   const t = useTranslations()
 
   return (
-    <header className="bg-black/85 px-8 py-1 flex items-center justify-between">
+    <header className="bg-black/85 px-4 md:px-8 py-1 flex items-center justify-between">
       <h1 className="text-white">
         <span className="font-bold">{t('title')}</span>
         {' '}
