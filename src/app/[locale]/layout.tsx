@@ -22,8 +22,10 @@ export default async function LocaleLayout({
  
   return (
     <html lang={locale} className="h-dvh overflow-hidden">
-      <body className="antialiased font-grotesk h-full overflow-hidden text-black bg-white m-0 p-0 tracking-text">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+      <body className="antialiased font-grotesk h-full overflow-hidden text-black bg-white m-0 p-0 tracking-text text-sm">
+        <NextIntlClientProvider>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );
