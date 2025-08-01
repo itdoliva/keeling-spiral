@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
       use: [ 'webpack-glsl-loader' ]
     })
     return config
-  }
+  },
 };
 const withNextIntl = createNextIntlPlugin()
 export default withNextIntl(nextConfig)

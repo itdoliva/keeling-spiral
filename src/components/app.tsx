@@ -2,7 +2,6 @@
 
 import useAppState from "@/hooks/use-app-state"
 
-import { Dataset } from "@/types/data";
 import { YearControllerConfig } from "@/config/layout";
 
 import { augmentDataset, getYears, } from "@/lib/data/transform";
@@ -13,8 +12,12 @@ import { ppmScale } from "@/lib/scale";
 
 
 import Header from "@/components/header/header";
+import { useEffect } from "react";
+import { useData } from "@/contexts/data-context";
 
-export default function App({ dataset }: { dataset: Dataset }) {
+export default function App() {
+  const dataset = useData()
+
   const { appState, appStateDispatch } = useAppState()
   
   const years = getYears(dataset.annual)
