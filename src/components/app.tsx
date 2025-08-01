@@ -25,20 +25,20 @@ export default function App({ dataset }: { dataset: Dataset }) {
   return (
     <>
       <Header />
-      <main>
-          <Experience dataset={augmentedData} selectedYear={appState.selectedYear} />
 
-          <div className="absolute top-4 left-0 w-full z-10">
-            <YearController 
-              years={years}
-              config={YearControllerConfig}
-              selectedYear={appState.selectedYear} 
-              hoveredYear={appState.hoveredYear} 
-              dispatch={appStateDispatch}
-            />
-          </div>
-
+      <main className="flex-grow-1 flex-shrink-0">
+        {/* <Experience dataset={augmentedData} selectedYear={appState.selectedYear} /> */}
       </main>
+
+      <footer className="md:w-96 md:absolute md:bottom-6 md:left-1/2 md:-translate-x-1/2">
+        <YearController 
+          years={years}
+          config={YearControllerConfig}
+          selectedYear={appState.selectedYear} 
+          hoveredYear={appState.hoveredYear} 
+          dispatch={appStateDispatch}
+        />
+      </footer>
   </>
   )
 }

@@ -21,11 +21,21 @@ export default function Track({
       ref={ref} 
       width={width} 
       height={height} 
-      className={cn("bg-zinc-50 rounded-xl border-1 border-zinc-100 shadow shadow-black/15", className)}
+      className={cn("bg-transparent", className)}
     >
+
+      <defs>
+        <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
+          <stop stopColor="#FF4400" offset="0%" />
+          <stop stopColor="#D90F8C" offset="65%" />
+          <stop stopColor="#4C9CEB" offset="100%" />
+        </linearGradient>
+      </defs>
+
       <g className="axis" transform={`translate(0, ${height/2})`}>
         {children}
       </g>
+
     </svg>
   )
 }

@@ -22,7 +22,7 @@ export default async function Layout({
 
   return (
     <html lang={locale} className="h-dvh overflow-hidden">
-      <body className="antialiased font-grotesk h-full overflow-hidden text-black bg-white m-0 p-0 tracking-text text-sm">
+      <body className="antialiased font-grotesk h-full overflow-hidden text-black bg-white m-0 p-0 tracking-text text-sm flex flex-col">
         {children}
       </body>
     </html>

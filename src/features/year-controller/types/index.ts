@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import { MouseEventHandler, TouchEventHandler } from 'react';
 
 export type YearTick = {
   year: number;

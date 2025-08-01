@@ -37,7 +37,7 @@ export default function TrackTicks<T>({ ticks, hoveredYear, scale }: TrackTicksO
     }, [ hoveredYear ])
 
   return (
-    <g ref={ref} className="ticks fill-[#747474]">
+    <g ref={ref} className="ticks fill-gray-light">
       {/* ... circle.tick */}
     </g>
   )
