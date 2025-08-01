@@ -56,8 +56,8 @@ export default function Experience({ dataset, selectedYear }: ExperienceProps) {
   
 
   return (
-    <div>
-      <canvas className="fixed top-0 left-0" ref={canvasRef} />
+    <div className="relative flex">
+      <canvas className="flex-grow-1" ref={canvasRef} />
       <div className="absolute top-1/2 left-1/2" ref={layerRef}></div>
     </div>
   )

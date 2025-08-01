@@ -27,7 +27,7 @@ export default function App({ dataset }: { dataset: Dataset }) {
       <Header />
 
       <main className="flex-grow-1 flex-shrink-0">
-        {/* <Experience dataset={augmentedData} selectedYear={appState.selectedYear} /> */}
+        <Experience dataset={augmentedData} selectedYear={appState.selectedYear} />
       </main>
 
       <footer className="md:w-96 md:absolute md:bottom-6 md:left-1/2 md:-translate-x-1/2">

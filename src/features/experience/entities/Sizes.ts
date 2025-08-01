@@ -4,10 +4,12 @@ export default class Sizes extends EventEmitter<Sizes> {
   public width: number
   public height: number
   public pixelRatio: number
+  private target: null | HTMLElement
 
-  constructor() {
+  constructor(target: null | HTMLElement = null) {
     super()
 
+    this.target = target
     this.width = this.getWidth()
     this.height = this.getHeight()
     this.pixelRatio = this.getPixelRatio()
@@ -15,24 +17,26 @@ export default class Sizes extends EventEmitter<Sizes> {
     this.trigger(this)
   }
 
+  private shouldResize() {
+    return typeof window !== 'undefined'
+  }
+
   private getWidth() {
-    return typeof window !== 'undefined' ? window.innerWidth : 0
+    if (!this.shouldResize()) return 0
+    return this.target ? this.target.clientWidth : window.innerWidth
   }
 
   private getHeight() {
-    return typeof window !== 'undefined' ? window.innerHeight : 0
+    if (!this.shouldResize()) return 0
+    return this.target ? this.target.clientHeight : window.innerHeight
   }
 
   private getPixelRatio() {
     // Clamp pixel ratio between 1 and 2
-    return typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 2) : 1
+    return this.shouldResize() ? Math.min(window.devicePixelRatio, 2) : 1
   }
 
   public handleResize = () => {
-    // const oldWidth = this.width
-    // const oldHeight = this.height
-    // const oldPixelRatio = this.pixelRatio
-
     this.width = this.getWidth()
     this.height = this.getHeight()
     this.pixelRatio = this.getPixelRatio()

@@ -20,7 +20,7 @@ export default class ExperienceManager {
   constructor(canvas: HTMLCanvasElement) {
     this.objects = []
     
-    this.sizes = new Sizes()
+    this.sizes = new Sizes(canvas)
     this.time = new Time()
     this.renderer = new Renderer(canvas)
     this.camera = new Camera3D()
