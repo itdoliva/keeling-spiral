@@ -1,5 +1,5 @@
 import postgres from 'postgres';
-import { parseAnnualData, parseMonthlyData, parseInterpolatedData } from '@/data/parsers'
+import { parseAnnualData, parseMonthlyData, parseInterpolatedData } from '@/lib/data/parsers'
 import { MeasureLocation } from '@/types/data';
 
 const sql = postgres(<string>process.env.DB_URL, 
@@ -57,16 +57,13 @@ export async function GET() {
       getAnnualData('MLO').then(data => data.map(parseAnnualData)),
       getMonthlyData('MLO').then(data => data.map(parseMonthlyData)),
       getInterpolatedData('MLO').then(data => data.map(parseInterpolatedData)),
-
-      // GLB
-      getAnnualData('GLB').then(data => data.map(parseAnnualData)),
-      getMonthlyData('GLB').then(data => data.map(parseMonthlyData)),
-      getInterpolatedData('GLB').then(data => data.map(parseInterpolatedData))
     ])
-     .then((datasets) => [
-      [ 'MLO', { annual: datasets[0], monthly: datasets[1], interpolated: datasets[2] } ],
-      [ 'GLB', { annual: datasets[3], monthly: datasets[4], interpolated: datasets[5] } ],
-     ])
+
+    .then((datasets) => ({ 
+      annual: datasets[0], 
+      monthly: datasets[1], 
+      interpolated: datasets[2] 
+    }))
      
     return Response.json(data, { status: 200 })
   }

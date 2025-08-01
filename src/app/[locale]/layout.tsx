@@ -1,31 +1,29 @@
 import "@/styles/global.css";
 
-import { NextIntlClientProvider, hasLocale } from 'next-intl';
+
+import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
- 
+  
 
-
-
-export default async function LocaleLayout({
+export default async function Layout({
   children,
   params
 }: {
   children: React.ReactNode;
   params: Promise<{locale: string}>;
 }) {
-  // Ensure that the incoming `locale` is valid
-  const { locale } = await params;
+  const { locale } = await params
+  
   if (!hasLocale(routing.locales, locale)) {
-    notFound();
+    notFound()
   }
- 
+
+
   return (
     <html lang={locale} className="h-dvh overflow-hidden">
       <body className="antialiased font-grotesk h-full overflow-hidden text-black bg-white m-0 p-0 tracking-text text-sm">
-        <NextIntlClientProvider>
-          {children}
-        </NextIntlClientProvider>
+        {children}
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 import { useRef, useCallback, useEffect, useState } from "react";
 
-interface FetchError {
+export interface FetchError {
   message: string;
   code?: string;
   timestamp: number;

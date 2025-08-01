@@ -1,56 +1,25 @@
-'use client'
+import { NextIntlClientProvider } from "next-intl";
 
-import Header from "@/components/header/header";
+import { fetchData } from "@/lib/data/fetch";
+import App from "@/components/app";
 
-import useFetch from "@/hooks/use-fetch";
-import useAppState from "@/hooks/use-app-state"
-import { fetchData } from "@/data/fetch";
+import { cache } from 'react';
 
-import { MasterDataset, Dataset } from "@/types/data";
-import { YearControllerConfig } from "@/config/layout";
+const getData = cache(fetchData)
 
-import DataTransformer from "@/features/data-transformer/DataTransformer";
+export default async function Home() {
+  const response = await getData()
 
-import YearController from "@/features/year-controller/components/controller";
-import Experience from "@/features/experience/components/experience";
-import { ppmScale } from "@/lib/scale";
-
-function App() {
-  const { data, error, isLoading } = useFetch<MasterDataset>(fetchData)
-  const { appState, appStateDispatch } = useAppState()
-
-  if (error) return <h1>Error!</h1>
-  if (isLoading) return <div>Loading...</div>
-
-  const dataset = (data as MasterDataset).get(appState.location) as Dataset
-  const years = dataset.annual.map(d => d.year)
-
-  ppmScale.updateDomain(dataset.monthly)
-  const transformedDataset = new DataTransformer(dataset).transform()
+  if (!response.success) {
+    throw new Error(response.error)
+  }
 
   return (
-    <main>
-        {/* <Experience dataset={transformedDataset} selectedYear={appState.selectedYear} /> */}
-
-        {/* <div className="absolute top-4 left-0 w-full z-10">
-          <YearController 
-            years={years}
-            config={YearControllerConfig}
-            selectedYear={appState.selectedYear} 
-            hoveredYear={appState.hoveredYear} 
-            dispatch={appStateDispatch}
-          />
-        </div> */}
-
-    </main>
-  )
-}
-
-export default function Home() {
-  return (
-    <>
-      <Header />
-      <App />
-    </>
+    <NextIntlClientProvider>
+      <App dataset={response.data} />
+    </NextIntlClientProvider>
+    
   );
 }
+
+
