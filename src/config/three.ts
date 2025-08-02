@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 export const SpiralConfig = {
   lengthRange: 25,
   radius: 1,
@@ -45,4 +47,8 @@ export const AtmSampleConfig = {
   size: 12,
   height: 3
 };
+export const CameraConfig = {
+  position: new THREE.Vector3(0, 0, 10),
+  lookAt: new THREE.Vector3(0, 0, 0)
+}
 

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import Sizes from "@/features/experience/entities/Sizes"
-import { CameraConfig } from '@/lib/config/layout';
+import { CameraConfig } from '@/config/three';
 
 export default class Camera3D {
   public camera: THREE.PerspectiveCamera
