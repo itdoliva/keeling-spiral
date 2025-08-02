@@ -1,6 +1,12 @@
-export default function Center({ children }: { children: React.ReactNode }) {
+import cn from "@/utils/cn"
+
+type CenterProps = {
+  children: React.ReactNode
+} & React.HTMLAttributes<HTMLDivElement>
+
+export default function Center({ children, className, ...props }: CenterProps) {
   return (
-    <article className="relative z-10 max-w-3xl mx-auto mt-6 md:mt-16 px-6 flex flex-col justify-end">
+    <article className={cn("max-w-3xl mx-auto", className)}>
       {children}
     </article>
   )

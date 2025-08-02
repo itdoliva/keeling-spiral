@@ -31,3 +31,11 @@ export function augmentDataset(dataset: Dataset) {
 export function getYears(data: AnnualDatum[] | MonthlyDatum[]) {
   return data.map(d => d.year)
 }
+
+export function filterByYear(dataset: Dataset, year: number) {
+  return {
+    annual: dataset.annual.find(d => d.year === year) as AnnualDatum,
+    monthly: dataset.monthly.filter(d => d.year === year) as MonthlyDatum[],
+    interpolated: dataset.interpolated.filter(d => d.year === year) as InterpolatedDatum[],
+  }
+}

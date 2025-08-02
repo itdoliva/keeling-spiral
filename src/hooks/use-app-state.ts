@@ -2,9 +2,7 @@ import { ReducerState, ReducerAction } from '@/types/store'
 import { useReducer } from 'react'
 
 const initialState = {
-  location: 'MLO',
-  selectedYear: 1980,
-  hoveredYear: null,
+  selectedYear: 1959,
 } as ReducerState
 
 function reducer(prevState: ReducerState, action: ReducerAction): ReducerState {
@@ -13,18 +11,6 @@ function reducer(prevState: ReducerState, action: ReducerAction): ReducerState {
       return {
         ...prevState,
         selectedYear: +action.year
-      }
-    }
-    case 'HOVER_YEAR': {
-      return {
-        ...prevState,
-        hoveredYear: +action.year
-      }
-    }
-    case 'TOGGLE_LOCATION': {
-      return {
-        ...prevState,
-        location: prevState.location === 'GLB' ? 'MLO' : 'GLB'
       }
     }
     default: {
