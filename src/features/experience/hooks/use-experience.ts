@@ -1,21 +1,19 @@
 import { useRef, useEffect } from "react"
 import * as THREE from 'three'
-import * as d3 from 'd3'
 
-import ExperienceManager from "@/features/experience/entities/ExperienceManager";
-import Group from "@/features/experience/entities/Group";
-import SpiralVisualizer from "@/features/spiral/entities/SpiralVisualizer";
+import ExperienceManager from "@/features/experience/lib/helpers/ExperienceManager";
+import SpiralVisualizer from "@/features/experience/features/spiral/lib/SpiralVisualizer";
 
 import { TransformedDataset } from "@/types/data";
-import Axis from "@/features/axis/entities/Axis";
 import { ppmScale } from "@/lib/scale";
 import { SpiralConfig } from "@/config/three";
-import Indicator from "@/features/indicator/entities/Indicator";
-import { makePPMTicks } from "@/features/axis/utils";
+import Indicator from "@/features/experience/features/indicator/lib/Indicator";
+import { makePPMTicks } from "@/features/experience/features/axis/utils";
+import Figure from "@/features/experience/features/figure/lib/Figure";
 
 type Experience = {
   manager: ExperienceManager,
-  figure: Group,
+  figure: Figure,
   spiral: SpiralVisualizer,
   indicator: Indicator
 }
@@ -34,19 +32,16 @@ export default function useExperience(
     if (!experienceRef.current) {
       const experienceManager = new ExperienceManager(canvasRef.current)
   
-      const figure = new Group()
-      const spiral = new SpiralVisualizer(dataset)
-
-      const ppmAxis = new Axis(makePPMTicks(ppmScale), layerRef.current)
-      const indicator = new Indicator()
+      const figure = new Figure(dataset, makePPMTicks(ppmScale), layerRef.current)
+      const spiral = figure.spiral
+      const ppmAxis = figure.axis
+      const indicator = figure.indicator
 
       ppmAxis.position.copy(new THREE.Vector3(-(config.radius + config.offset), 0, 0))
   
-      figure.add(spiral, ppmAxis, indicator)
-  
       experienceManager.addObject(figure)
       experienceManager.addLoopCallback((time, { camera, sizes }) => {
-        ppmAxis.tick(camera, sizes)
+        figure.tick(camera, sizes)
       })
   
       experienceRef.current = { 
@@ -55,12 +50,15 @@ export default function useExperience(
         spiral,
         indicator
       }
+
+      setInterval(() => {
+        figure.toggleViewpoint()
+      }, 3000)
   
       experienceManager.init()
     }
 
     window.addEventListener('resize', experienceRef.current.manager.handleWindowResize)
-
     return () => {
       if (experienceRef.current) {
         window.removeEventListener('resize', experienceRef.current.manager.handleWindowResize)

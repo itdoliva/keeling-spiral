@@ -7,7 +7,6 @@ type FetchResult<T> =
 
 
 export async function fetchData(): Promise<FetchResult<Dataset>> {
-  console.log('fetching 👀')
   const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
   const url = `${base}/api/get-data`
 

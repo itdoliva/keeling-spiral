@@ -27,7 +27,8 @@ export const AxisConfig = {
   },
   material: {
     color: 0x1c1c1c,
-    linewidth: 1 
+    linewidth: 1 ,
+    transparent: true
   }
 }
 
@@ -46,7 +47,8 @@ export const AtmSampleConfig = {
   radius: .16,
   size: 12,
   height: 3
-};
+}
+
 export const CameraConfig = {
   position: new THREE.Vector3(0, 0, 10),
   lookAt: new THREE.Vector3(0, 0, 0)

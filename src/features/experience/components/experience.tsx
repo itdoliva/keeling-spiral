@@ -1,13 +1,10 @@
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
 
 import useExperience from "@/features/experience/hooks/use-experience";
 import useDrag from "@/features/experience/hooks/use-drag";
 
 import { TransformedDataset, AnnualDatum } from "@/types/data";
 import { ppmScale } from "@/lib/scale";
-import movePositionTo from "@/utils/moveTo";
-import { FigurePositionTween, IndicatorPositionTween } from "@/config/tween-vars";
 
 
 type ExperienceProps = {
@@ -27,16 +24,13 @@ export default function Experience({ dataset, selectedYear }: ExperienceProps) {
   const selectionY = ppmScale(selectedData.ppm)
 
   if (experienceRef.current) {
-    const figure = experienceRef.current.figure.getObject()
-    const indicator = experienceRef.current.indicator.getObject()
-
-    movePositionTo(figure, { y: -selectionY + 1.5 }, FigurePositionTween)
-    movePositionTo(indicator, { y: selectionY }, IndicatorPositionTween)
+    experienceRef.current.figure.moveTo(selectionY)
   }
 
   useEffect(() => {
     if (experienceRef.current) {
-      experienceRef.current.figure.position.y = -selectionY + 1.5
+      experienceRef.current.figure.moveTo(selectionY)
+      // experienceRef.current.figure.position.y = -selectionY + 1.5
     }
 
     const horizontalPan = (delta: number) => {
@@ -46,8 +40,6 @@ export default function Experience({ dataset, selectedYear }: ExperienceProps) {
     }
 
     dragRef.current.addXCallback(horizontalPan)
-
-
     return () => {
       dragRef.current.removeXCallback(horizontalPan)
     }
